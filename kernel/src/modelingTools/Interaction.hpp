@@ -31,6 +31,12 @@
 #include "SiconosFwd.hpp"
 #include <vector>
 
+class Interaction;
+namespace boost { namespace serialization {
+    template<class Archive>
+    inline void load_construct_data(Archive & ar, Interaction * t, const unsigned int file_version);
+  }}
+
 /**  An Interaction describes the non-smooth interactions
  *  several Dynamical Systems.
  *
@@ -848,6 +854,25 @@ public:
    */
   void initDSDataNewtonEuler(DynamicalSystem& ds, VectorOfVectors& workVDS, VectorOfBlockVectors& DSlink);
 
+  friend class boost::serialization::access;
+  template<class Archive> inline friend void boost::serialization::load_construct_data(Archive &ar, Interaction *t, const unsigned int file_version);
+
 };
+
+namespace boost { namespace serialization {
+    template<class Archive>
+    inline void load_construct_data(
+      Archive & ar, Interaction * t, const unsigned int file_version
+      ){
+      ::new(t)Interaction();
+      t->_y.resize(0);
+      t->_yOld.resize(0);
+      t->_y_k.resize(0);
+      t->_yMemory.resize(0);
+      t->_lambdaMemory.resize(0);
+      t->_lambda.resize(0);
+      t->_lambdaOld.resize(0);
+    };
+  }}
 
 #endif // INTERACTION_H

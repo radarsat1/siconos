@@ -1071,6 +1071,10 @@ namespace boost { namespace serialization {
       ::new(t)LagrangianDS();
       t->_q.resize(0);
       t->_p.resize(0);
+      t->_pMemory.resize(0);
+      t->_x.resize(0);
+      t->_workspace.resize(0);
+      t->_workMatrix.resize(0);
     };
   }}
 
