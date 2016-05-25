@@ -26,6 +26,12 @@
 #include "SimulationTypeDef.hpp"
 #include "SimulationGraphs.hpp"
 
+class Topology;
+namespace boost { namespace serialization {
+    template<class Archive>
+    inline void load_construct_data(Archive & ar, Topology * t, const unsigned int file_version);
+  }}
+
 /**  This class describes the topology of the non-smooth dynamical
  *  system. It holds all the "potential" Interactions".
  *
@@ -347,8 +353,21 @@ public:
    */
   unsigned int numberOfInvolvedDS(unsigned int inumber);
 
-
+  /* Allow access for serialization loading override. */
+  friend class boost::serialization::access;
+  template<class Archive> inline friend void boost::serialization::load_construct_data(Archive &ar, Topology *t, const unsigned int file_version);
 };
+
+namespace boost { namespace serialization {
+    template<class Archive>
+    inline void load_construct_data(
+      Archive & ar, Topology * t, const unsigned int file_version
+      ){
+      ::new(t)Topology();
+      t->_DSG.resize(0);
+      t->_IG.resize(0);
+    };
+  }}
 
 DEFINE_SPTR(Topology)
 

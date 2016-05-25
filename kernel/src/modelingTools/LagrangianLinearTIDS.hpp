@@ -24,6 +24,11 @@
 
 #include "LagrangianDS.hpp"
 
+class LagrangianLinearTIDS;
+namespace boost { namespace serialization {
+    template<class Archive>
+    inline void load_construct_data(Archive & ar, LagrangianLinearTIDS * t, const unsigned int file_version);
+  }}
 
 /** Lagrangian Linear Systems with time invariant coefficients - Derived from LagrangianDS
  *
@@ -228,7 +233,22 @@ public:
     return 0.0;
   }
 
+  friend class boost::serialization::access;
+  template<class Archive> inline friend void boost::serialization::load_construct_data(Archive &ar, LagrangianLinearTIDS *t, const unsigned int file_version);
+
   ACCEPT_STD_VISITORS();
 
 };
+
+namespace boost { namespace serialization {
+    template<class Archive>
+    inline void load_construct_data(
+      Archive & ar, LagrangianLinearTIDS * t, const unsigned int file_version
+      ){
+      ::new(t)LagrangianLinearTIDS();
+      t->_q.resize(0);
+      t->_p.resize(0);
+    };
+  }}
+
 #endif // LAGRANGIANTIDS_H
