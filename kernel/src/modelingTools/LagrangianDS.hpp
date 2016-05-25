@@ -27,6 +27,12 @@
 #include "BoundaryCondition.hpp"
 #include "SiconosConst.hpp"
 
+class LagrangianDS;
+namespace boost { namespace serialization {
+    template<class Archive>
+    inline void load_construct_data(Archive & ar, LagrangianDS * t, const unsigned int file_version);
+  }}
+
 /** Lagrangian non linear dynamical systems - Derived from DynamicalSystem -
  *
  *  \author SICONOS Development Team - copyright INRIA
@@ -1050,9 +1056,23 @@ public:
     return  _workMatrix[id];
   }
 
+  friend class boost::serialization::access;
+  template<class Archive> inline friend void boost::serialization::load_construct_data(Archive &ar, LagrangianDS *t, const unsigned int file_version);
+
   ACCEPT_STD_VISITORS();
 
 };
+
+namespace boost { namespace serialization {
+    template<class Archive>
+    inline void load_construct_data(
+      Archive & ar, LagrangianDS * t, const unsigned int file_version
+      ){
+      ::new(t)LagrangianDS();
+      t->_q.resize(0);
+      t->_p.resize(0);
+    };
+  }}
 
 TYPEDEF_SPTR(LagrangianDS)
 

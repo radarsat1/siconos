@@ -95,7 +95,7 @@ void KernelTest::t2()
 
 
   SP::DynamicalSystem ds1(new LagrangianDS(q, v, m));
-  SP::DynamicalSystem ds2(new LagrangianDS(q, v, m));
+  SP::DynamicalSystem ds2;
 
   std::ofstream ofs("Kernelt2.xml");
   {
