@@ -25,6 +25,12 @@
 #include "DynamicalSystem.hpp"
 #include "BoundaryCondition.hpp"
 
+class NewtonEulerDS;
+namespace boost { namespace serialization {
+    template<class Archive>
+    inline void load_construct_data(Archive & ar, NewtonEulerDS * t, const unsigned int file_version);
+  }}
+
 /** Pointer to function for plug-in. */
 typedef void (*FInt_NE)(double t, double* q, double* v, double *f, unsigned int size_z,  double* z);
 typedef void (*FExt_NE)(double t, double* f, unsigned int size_z, double *z);
@@ -961,7 +967,23 @@ public:
   //  */
   // void computeMObjToAbs(SP::SiconosVector q);
 
+  friend class boost::serialization::access;
+  template<class Archive> inline friend void boost::serialization::load_construct_data(Archive &ar, NewtonEulerDS *t, const unsigned int file_version);
+
   ACCEPT_STD_VISITORS();
 
 };
+
+namespace boost { namespace serialization {
+    template<class Archive>
+    inline void load_construct_data(
+      Archive & ar, NewtonEulerDS * t, const unsigned int file_version
+      ){
+      ::new(t)NewtonEulerDS();
+      t->_x.resize(0);
+      t->_workspace.resize(0);
+      t->_workMatrix.resize(0);
+    };
+  }}
+
 #endif // NEWTONEULERNLDS_H

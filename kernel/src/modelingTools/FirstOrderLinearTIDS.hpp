@@ -23,6 +23,11 @@
 
 #include "FirstOrderLinearDS.hpp"
 
+class FirstOrderLinearTIDS;
+namespace boost { namespace serialization {
+    template<class Archive>
+    inline void load_construct_data(Archive & ar, FirstOrderLinearTIDS * t, const unsigned int file_version);
+  }}
 
 /** First order linear systems - Inherits from DynamicalSystems
  *
@@ -134,9 +139,24 @@ public:
     ;
   };
 
+  friend class boost::serialization::access;
+  template<class Archive> inline friend void boost::serialization::load_construct_data(Archive &ar, FirstOrderLinearTIDS *t, const unsigned int file_version);
+
   ACCEPT_STD_VISITORS();
 
 };
+
+namespace boost { namespace serialization {
+    template<class Archive>
+    inline void load_construct_data(
+      Archive & ar, FirstOrderLinearTIDS * t, const unsigned int file_version
+      ){
+      ::new(t)FirstOrderLinearTIDS();
+      t->_x.resize(0);
+      t->_workspace.resize(0);
+      t->_workMatrix.resize(0);
+    };
+  }}
 
 TYPEDEF_SPTR(FirstOrderLinearTIDS)
 

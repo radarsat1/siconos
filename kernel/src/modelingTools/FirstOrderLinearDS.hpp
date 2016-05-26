@@ -23,6 +23,12 @@
 
 #include "FirstOrderNonLinearDS.hpp"
 
+class FirstOrderLinearDS;
+namespace boost { namespace serialization {
+    template<class Archive>
+    inline void load_construct_data(Archive & ar, FirstOrderLinearDS * t, const unsigned int file_version);
+  }}
+
 typedef   void (*LDSPtrFunction)(double, unsigned int, double*, unsigned int, double*);
 
 
@@ -303,9 +309,24 @@ public:
   /** Reset all the plugins */
   virtual void zeroPlugin();
 
+  friend class boost::serialization::access;
+  template<class Archive> inline friend void boost::serialization::load_construct_data(Archive &ar, FirstOrderLinearDS *t, const unsigned int file_version);
+
   ACCEPT_STD_VISITORS();
 
 };
+
+namespace boost { namespace serialization {
+    template<class Archive>
+    inline void load_construct_data(
+      Archive & ar, FirstOrderLinearDS * t, const unsigned int file_version
+      ){
+      ::new(t)FirstOrderLinearDS();
+      t->_x.resize(0);
+      t->_workspace.resize(0);
+      t->_workMatrix.resize(0);
+    };
+  }}
 
 TYPEDEF_SPTR(FirstOrderLinearDS)
 
