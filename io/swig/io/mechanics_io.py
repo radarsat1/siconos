@@ -553,6 +553,7 @@ class Hdf5():
         self._collision_margin = collision_margin
         self._output_frequency = 1
         self._keep = []
+        self._bodies = []
 
         #print('collision_margin in __init__', collision_margin)
         #print('self._collision_margin in __init__', self._collision_margin)
@@ -710,6 +711,8 @@ class Hdf5():
             nsds.topology().setOSI(body, self._osi)
             nsds.setName(body, str(name))
 
+            self._bodies.append((name, body))
+
     def importObject(self, name, translation, orientation,
                      velocity, contactors, mass, inertia, body_class, shape_class):
 
@@ -849,6 +852,8 @@ class Hdf5():
                 nsds.topology().setOSI(body, self._osi)
                 nsds.setName(body, str(name))
 
+                self._bodies.append((name, body))
+
     def importJoint(self, name):
         if self._broadphase is not None:
             topo = self._broadphase.model().nonSmoothDynamicalSystem().\
@@ -874,9 +879,13 @@ class Hdf5():
                     link(joint_inter, ds1, ds2)
 
             else:
-                joint = joint_class(ds1,
-                                    self.joints()[name].attrs['pivot_point'],
-                                    self.joints()[name].attrs['axis'])
+                if (self.joints()[name].attrs['type']=='PivotJointR'):
+                    joint = joint_class(ds1,
+                                        self.joints()[name].attrs['pivot_point'],
+                                        self.joints()[name].attrs['axis'])
+                elif (self.joints()[name].attrs['type']=='PrismaticJointR'):
+                    joint = joint_class(ds1,
+                                        self.joints()[name].attrs['axis'])
 
                 joint_inter = Interaction(5, joint_nslaw, joint)
                 self._broadphase.model().nonSmoothDynamicalSystem().\
@@ -1406,7 +1415,8 @@ class Hdf5():
             tolerance=1e-8,
             numerics_verbose=False,
             violation_verbose=False,
-            output_frequency=None):
+            output_frequency=None,
+            body_callback=None):
         """
         Run a simulation from inputs in hdf5 file.
         parameters are:
@@ -1554,6 +1564,9 @@ class Hdf5():
         while simulation.hasNextEvent():
 
             print ('step', k, '<', k0 - 1 + int((T - t0) / h))
+
+            if body_callback is not None:
+                [body_callback(*b) for b in self._bodies]
 
             if proposed_is_here and use_proposed:
                 self._broadphase.resetStatistics()

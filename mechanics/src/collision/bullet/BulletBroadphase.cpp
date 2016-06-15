@@ -868,8 +868,8 @@ void BulletBroadphase::performBroadphase()
         // sufficient warning before contact.  TODO: Replace with exception or
         // flag.
         if ((it->point->getDistance() + combined_margin) < 0.0) {
-          fprintf(stderr, "Interactions must be created with positive distance (%f).\n",
-                  (it->point->getDistance() + combined_margin)/_options.worldScale);
+            //fprintf(stderr, "Interactions must be created with positive distance (%f).\n",
+            //(it->point->getDistance() + combined_margin)/_options.worldScale);
           _stats.interaction_warnings ++;
         }
 
