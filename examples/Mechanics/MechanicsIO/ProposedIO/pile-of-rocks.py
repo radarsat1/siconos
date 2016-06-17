@@ -46,7 +46,7 @@ with Hdf5() as io:
         io.addObject('obj%d'%i, [Contactor('shape%d'%i)],
                      translation=[x-w*s/2, y-w*s/2, z+2],
                      velocity=[0, 0, 0, 0, 0, 0],
-                     mass=sizes[i]*1)
+                     mass=sizes[i]*0.1)
 
     # Definition of the ground shape
     io.addPrimitiveShape('Ground', 'Box', (1000, 1000, 1),
@@ -115,7 +115,7 @@ with Hdf5(mode='r+') as io:
             v = body.velocity()
 
             # PD controller
-            weight[1] += (3.0-v[1])*10
+            weight[1] += (3.0-v[1])*1000
             #weight[2] += (40-q[2])*200 - v[2]*20
             body.setFExtPtr(weight)
             m = [0,0,0]
@@ -140,4 +140,4 @@ with Hdf5(mode='r+') as io:
            tolerance=1e-4,
            numerics_verbose=False,
            body_callback=myforces,
-           output_frequency=None)
+           output_frequency=10)
