@@ -27,7 +27,7 @@ with Hdf5() as io:
     # is between contactors of group id 0.
     io.addNewtonImpactFrictionNSL('contact', mu=0.3)
 
-    N = 1000
+    N = 3000
     sizes = numpy.linspace(0.7,3,N)
     w = int(numpy.sqrt(N)+1)
     s = 3
@@ -44,7 +44,7 @@ with Hdf5() as io:
                           insideMargin=0.1, outsideMargin=0.0)
         x, y, z = numpy.random.random(3)*w*s
         io.addObject('obj%d'%i, [Contactor('shape%d'%i)],
-                     translation=[x-w*s/2, y-w*s/2, z+2],
+                     translation=[x*0.2-w*s/2*0.2, y*3-w*s/2*3+100, z+2],
                      velocity=[0, 0, 0, 0, 0, 0],
                      mass=sizes[i]*0.1)
 
@@ -115,7 +115,7 @@ with Hdf5(mode='r+') as io:
             v = body.velocity()
 
             # PD controller
-            weight[1] += (3.0-v[1])*1000
+            weight[1] += (7.0-v[1])*1000
             #weight[2] += (40-q[2])*200 - v[2]*20
             body.setFExtPtr(weight)
             m = [0,0,0]
