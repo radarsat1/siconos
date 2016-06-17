@@ -1560,10 +1560,16 @@ class Hdf5():
         #     ds.display()
         # #raw_input()
 
-
+        start_time = time.time()
         while simulation.hasNextEvent():
+            # Estimate time left
+            time_taken = time.time() - start_time
+            time_per_step = time_taken / k
+            total_steps = k0 - 1 + int((T - t0) / h)
+            steps_left = total_steps - k
+            minutes_left = int(time_per_step * steps_left / 60.0 + 0.5)
 
-            print ('step', k, '<', k0 - 1 + int((T - t0) / h))
+            print ('step', k, '<', total_steps, '(approx.', minutes_left,'mins left)')
 
             if body_callback is not None:
                 [body_callback(*b) for b in self._bodies]
