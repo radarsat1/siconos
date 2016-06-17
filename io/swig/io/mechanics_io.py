@@ -520,6 +520,8 @@ class Hdf5():
                  set_external_forces=None, gravity_scale=None, collision_margin=None):
 
         if io_filename is None:
+            self._stats_filename = '{0}-stats.csv'.format(
+                os.path.splitext(os.path.basename(sys.argv[0]))[0])
             self._io_filename = '{0}.hdf5'.format(
                 os.path.splitext(os.path.basename(sys.argv[0]))[0])
         else:
@@ -1560,16 +1562,22 @@ class Hdf5():
         #     ds.display()
         # #raw_input()
 
+        stats = open(self._stats_filename, mode='w')
+
         start_time = time.time()
+        last_time_per_step = 0.0
         while simulation.hasNextEvent():
             # Estimate time left
-            time_taken = time.time() - start_time
+            step_time = time.time()
+            time_taken = step_time - start_time
             time_per_step = time_taken / k
             total_steps = k0 - 1 + int((T - t0) / h)
             steps_left = total_steps - k
             minutes_left = int(time_per_step * steps_left / 60.0 + 0.5)
 
-            print ('step', k, '<', total_steps, '(approx.', minutes_left,'mins left)')
+            print ('step', k, '<', total_steps, '(approx.',
+                   minutes_left,'mins left, current time',
+                   'per step %0.1fs)'%last_time_per_step)
 
             if body_callback is not None:
                 [body_callback(*b) for b in self._bodies]
@@ -1602,14 +1610,16 @@ class Hdf5():
                 log(self._out.flush)()
 
             if proposed_is_here and use_proposed:
-                print('number of contacts',
-                      self._broadphase.statistics().new_interactions_created
-                      + self._broadphase.statistics().existing_interactions_processed)
+                n_contacts = (
+                    self._broadphase.statistics().new_interactions_created
+                    + self._broadphase.statistics().existing_interactions_processed)
             else:
-                print('number of contacts',self._broadphase.model().simulation().oneStepNSProblem(0).getSizeOutput()/3)
+                n_contacts = self._broadphase.model().simulation().oneStepNSProblem(0).getSizeOutput()/3
+            print('number of contacts',n_contacts)
 
             self.printSolverInfos()
 
+            violation_max = 0
             if violation_verbose:
                 print('violation info')
                 y = simulation.y(0,0)
@@ -1639,6 +1649,11 @@ class Hdf5():
 
 
             log(simulation.nextStep, with_timer)()
+
+            last_time = time.time() - start_time
+            last_time_per_step = time.time() - step_time
+            print('%d,%f,%f,%f,%d,%f'%(k,step_time,last_time_per_step,minutes_left,
+                                       n_contacts,violation_max), file=stats)
 
             print ('')
             k += 1
