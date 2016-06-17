@@ -1,9 +1,12 @@
 """! \addtogroup mbtbLocalOption
 
+This documentation is build from the python example Tests/SliderCrank, it contains an example of local options.
+
 This file is optional, if it doesn't exit, the default voptions will be use.
 
 @{
 """
+import array
 import numpy
 #bodies view Param
 ## To define if a body is drew.
@@ -43,7 +46,7 @@ contactTrans2=array.array('d',[
 
 #3D parameters
 ## It must be set to 1 to run in a 3D view.
-with3D=1
+with3D = 0
 ## 3D viewer update frequency and output frequency.
 freqOutput=10
 freqUpdate=10
@@ -55,29 +58,36 @@ apple=0
 ## Simulation parameters time step size.
 stepSize=1e-4
 ## Simulation parameters number of steps. Useful if with3D=0.
-stepNumber=2000
+stepNumber=20
 
-TSdeactivateYPosThreshold=1e-1
+TSTheta=0.5
+TSGamma=0.5
+
+TSNewtonTolerance=1e-10
+TSNewtonMaxIteration=15
+
+
+TSdeactivateYPosThreshold=1e-5
 TSdeactivateYVelThreshold=0.0
-TSactivateYPosThreshold=1.e-1
+TSactivateYPosThreshold=1.e-7
 TSactivateYVelThreshold=100
 
 
 TSProjectionMaxIteration=100
-TSConstraintTol=1e-1
-TSConstraintTolUnilateral=1e-1
+TSConstraintTol=1e-8
+TSConstraintTolUnilateral=1e-7
 TSLevelOfProjection=0
 
 #solver parameters
 ## To activate the projection algorithm.
-withProj=1
+withProj=2
 ## Solver option
 withReduced=2
 
 ## Solver option
-solverTol=1e-1
+solverTol=1e-10
 ## Solver option
-solverIt=100000
+solverIt=1000
 
 gotoPos=0
 
@@ -85,7 +95,7 @@ gotoPos=0
 NBARTEFACTS=1
 ## CAD file of the artefacts
 Artefactfile=[
-        './CAD/shaft.stp']
+        './CAD/artefact2.step']
 ## transparency of the artefacts
 ArtefactTrans=array.array('d',[
         0.8])
