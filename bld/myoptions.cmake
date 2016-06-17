@@ -66,4 +66,6 @@ set(COMPONENTS externals numerics kernel control mechanics io CACHE INTERNAL "Li
 # set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 # set(CMAKE_C_FLAGS_DEBUG "-g -O0")
 set(CMAKE_BUILD_TYPE "RELEASE")
-set(CMAKE_CXX_FLAGS "-Werror=delete-non-virtual-dtor -Werror=unreachable-code -Wall -Wuninitialized -Wextra -Wno-unused-parameter -Werror=implicit-function-declaration -Werror=logical-not-parentheses -Werror=sizeof-array-argument -Werror=array-bounds -Werror=type-limits -Werror=return-type -Wodr -Werror=overloaded-virtual -Wformat=2 -Werror=format-security -Werror=non-virtual-dtor")
+set(CMAKE_CXX_FLAGS "-fPIC -Werror=delete-non-virtual-dtor -Werror=unreachable-code -Wall -Wuninitialized -Wextra -Wno-unused-parameter -Werror=implicit-function-declaration -Werror=logical-not-parentheses -Werror=sizeof-array-argument -Werror=array-bounds -Werror=type-limits -Werror=return-type -Wodr -Woverloaded-virtual -Wformat=2 -Werror=format-security -Werror=non-virtual-dtor")
+#set(CMAKE_CXX_FLAGS "-fPIC -Werror=delete-non-virtual-dtor -Werror=unreachable-code -Wall -Wuninitialized -Wextra -Wno-unused-parameter -Werror=implicit-function-declaration -Werror=logical-not-parentheses -Werror=sizeof-array-argument -Werror=array-bounds -Werror=type-limits -Werror=return-type -Wodr -Werror=overloaded-virtual -Wformat=2 -Werror=format-security -Werror=non-virtual-dtor")
+
