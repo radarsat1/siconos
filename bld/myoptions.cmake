@@ -66,4 +66,4 @@ set(COMPONENTS externals numerics kernel control mechanics io CACHE INTERNAL "Li
 # set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 # set(CMAKE_C_FLAGS_DEBUG "-g -O0")
 set(CMAKE_BUILD_TYPE "RELEASE")
-set(CMAKE_CXX_FLAGS "-Werror=delete-non-virtual-dtor -Werror=unreachable-code -Wall -Wuninitialized -Werror=unknown-warning-option -Wextra -Wno-unused-parameter -Werror=implicit-function-declaration -Werror=logical-not-parentheses -Werror=sizeof-array-argument -Werror=array-bounds -Werror=format-invalid-specifier -Werror=type-limits -Werror=return-type -Wodr -Werror=overloaded-virtual -Wc++11-compat-deprecated-writable-strings -Wformat=2 -Werror=format-security -Werror=non-virtual-dtor -Wno-string-plus-int")
+set(CMAKE_CXX_FLAGS "-Werror=delete-non-virtual-dtor -Werror=unreachable-code -Wall -Wuninitialized -Wextra -Wno-unused-parameter -Werror=implicit-function-declaration -Werror=logical-not-parentheses -Werror=sizeof-array-argument -Werror=array-bounds -Werror=type-limits -Werror=return-type -Wodr -Werror=overloaded-virtual -Wformat=2 -Werror=format-security -Werror=non-virtual-dtor")
