@@ -67,11 +67,11 @@ with Hdf5() as io:
                        (10,0,1)])*10
     height = pts.mean(0)[2]
     io.addConvexShape('Shovel', pts-pts.mean(0),
-                      insideMargin=0.1, outsideMargin=0.0)
+                      insideMargin=0.01, outsideMargin=0.1)
 
     # # the shovel object made with the shovel shape
     io.addObject('shovel', [Contactor('Shovel')],
-                 translation=[0.0, -150.0, height*1.01],
+                 translation=[0.0, -150.0, height*1.0],
                  mass=100)
 
     io.addJoint('joint1', 'shovel',
