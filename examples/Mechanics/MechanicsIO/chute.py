@@ -243,9 +243,9 @@ with Hdf5() as io:
                translation=[0, 0, 0])
 
 
-  n_cube=5
-  n_row=1
-  n_col=1
+  n_cube=1
+  n_row=5
+  n_col=5
   cube_size =0.25
   x_shift=3.0
   for i in range(n_row):
