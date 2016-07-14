@@ -174,8 +174,10 @@ def data(h, name, nbcolumns):
         return h[name]
     except KeyError:
         return h.create_dataset(name, (0, nbcolumns),
-                                maxshape=(None, nbcolumns))
-
+                                maxshape=(None, nbcolumns),
+                                chunks=nbcolumns>0 and (4000,nbcolumns) or None,
+                                compression=nbcolumns>0 and 'gzip' or None,
+                                compression_opts=nbcolumns>0 and 9 or None)
 
 def add_line(dataset, line):
     dataset.resize(dataset.shape[0] + 1, 0)
