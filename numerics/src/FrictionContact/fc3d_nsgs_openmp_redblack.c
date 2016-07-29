@@ -126,9 +126,11 @@ void fc3d_nsgs_openmp_redblack(FrictionContactProblem* problem, double *reaction
 
   unsigned int *scontacts = NULL;
 
+  double t0omp = omp_get_wtime();
   while ((iter < itermax) && (hasNotConverged > 0))
   {
     ++iter;
+    printf("Iteration %d.. ", iter);
     /* Loop through the contact points */
     //cblas_dcopy( n , q , incx , velocity , incy );
     for (int c=0; c<2; c++)
@@ -170,6 +172,12 @@ void fc3d_nsgs_openmp_redblack(FrictionContactProblem* problem, double *reaction
     /* **** Criterium convergence **** */
     (*computeError)(problem, reaction , velocity, tolerance, options, normq, &error);
 
+    printf("error = %g", error);
+    double t1omp = omp_get_wtime();
+    printf("    time per iter = %g", (t1omp - t0omp)/iter);
+    printf("      \r");
+    fflush(stdout);
+
     if (error < tolerance)
     {
       hasNotConverged = 0;
@@ -191,6 +199,7 @@ void fc3d_nsgs_openmp_redblack(FrictionContactProblem* problem, double *reaction
                                                error, NULL);
     }
   }
+  printf("\n");
 
   dparam[0] = tolerance;
   dparam[1] = error;

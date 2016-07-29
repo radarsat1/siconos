@@ -53,6 +53,7 @@ void fc3d_nsgs_openmp_for(FrictionContactProblem* problem, double *reaction,
   int itermax = iparam[0];
   /* Tolerance */
   double tolerance = dparam[0];
+  double normq = cblas_dnrm2(nc*3 , problem->q , 1);
 
   if (*info == 0)
     return;
@@ -133,9 +134,14 @@ void fc3d_nsgs_openmp_for(FrictionContactProblem* problem, double *reaction,
   if (options->iparam[14] > 0)
     fullGS = options->iparam[14];
 
+  printf("threads = %d\n", omp_get_max_threads());
+
+  double t0 = omp_get_wtime();
+
   while ((iter < itermax) && (hasNotConverged > 0))
   {
     ++iter;
+    printf("Iteration %d.. %d.. ", iter, (iter%1)==1);
     error_delta_reaction=0.0;
     /* Loop through the contact points */
     //cblas_dcopy( n , q , incx , velocity , incy );
@@ -191,15 +197,35 @@ void fc3d_nsgs_openmp_for(FrictionContactProblem* problem, double *reaction,
       }
 
     //double normq = cblas_dnrm2(nc*3 , problem->q , 1);
-    error_delta_reaction = sqrt(error_delta_reaction);
+    /* error_delta_reaction = sqrt(error_delta_reaction); */
 
-    /* printf("error_delta_reaction  = %e\t", error_delta_reaction); */
-    /* printf("rel error_delta_reaction  = %e\n", error_delta_reaction/cblas_dnrm2(nc*3 , reaction , 1)); */
-    double norm_r = cblas_dnrm2(nc*3 , reaction , 1);
-    if (fabs(norm_r) > DBL_EPSILON)
-      error_delta_reaction /= norm_r;
+    /* /\* printf("error_delta_reaction  = %e\t", error_delta_reaction); *\/ */
+    /* /\* printf("rel error_delta_reaction  = %e\n", error_delta_reaction/cblas_dnrm2(nc*3 , reaction , 1)); *\/ */
+    /* double norm_r = cblas_dnrm2(nc*3 , reaction , 1); */
+    /* if (fabs(norm_r) > DBL_EPSILON) */
+    /*   error_delta_reaction /= norm_r; */
     
-    error = error_delta_reaction;
+    /* error = error_delta_reaction; */
+
+    if (iparam[8] >0)
+    {
+      if (iter % iparam[8] ==0 )
+        (*computeError)(problem, reaction , velocity, tolerance, options, normq,  &error);
+    }
+    else
+      (*computeError)(problem, reaction , velocity, tolerance, options, normq,  &error);
+
+    if (error < tolerance)
+    {
+      hasNotConverged = 0;
+      if (verbose > 0)
+        printf("----------------------------------- FC3D - NSGS - Iteration %i Residual = %14.7e < %7.3e\n", iter, error, options->dparam[0]);
+    }
+    else
+    {
+      if (verbose > 0)
+        printf("----------------------------------- FC3D - NSGS - Iteration %i Residual = %14.7e > %7.3e\n", iter, error, options->dparam[0]);
+    }
 
     if (error < tolerance)
     {
@@ -228,6 +254,11 @@ void fc3d_nsgs_openmp_for(FrictionContactProblem* problem, double *reaction,
 
 
     }
+    printf("error = %g", error);
+    double t = omp_get_wtime();
+    printf("    time per iter = %g", (t - t0)/iter);
+    printf("      \r");
+    fflush(stdout);
 
     *info = hasNotConverged;
 
@@ -242,6 +273,7 @@ void fc3d_nsgs_openmp_for(FrictionContactProblem* problem, double *reaction,
   dparam[0] = tolerance;
   dparam[1] = error;
   iparam[7] = iter;
+  printf("\n");
 
   /***** Free memory *****/
   for (unsigned int i=0; i < max_threads; i++)

@@ -57,6 +57,13 @@ void fc3d_nsgs_openmp(FrictionContactProblem* problem, double *reaction,
   {
     fc3d_nsgs_openmp_iterfor(problem, reaction, velocity, info, options) ;
   }
+  else if (iparam[11] == 4)
+  {
+    // we use the nsgs loop, but row parallelism is introduced by
+    // selecting "fc3d_onecontact_nonsmooth_Newton_AC_update_rowpar"
+    // in solver options
+    fc3d_nsgs(problem, reaction, velocity, info, options) ;
+  }
   else if (iparam[11] == 10)
   {
     fc3d_nsgs_error_comparison(problem, reaction, velocity, info, options) ;

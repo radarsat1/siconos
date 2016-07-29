@@ -878,8 +878,8 @@ class Hdf5():
                     # cold restart if output previously done
                     if mass > 0 and self.dynamic_data() is not None and len(self.dynamic_data()) > 0:
                         counter +=1
-                        print ('Import  dynamic object number ', counter, 'from current state')
-                        print ('                object name   ', name)
+                        # print ('Import  dynamic object number ', counter, 'from current state')
+                        # print ('                object name   ', name)
                         dpos_data = self.dynamic_data()
                         max_time = max(dpos_data[:, 0])
                         id_last = np.where(
@@ -904,8 +904,8 @@ class Hdf5():
                     # start from initial conditions
                     else:
                         counter +=1
-                        print ('Import  dynamic or static object number ', counter, 'from initial state')
-                        print ('                object name   ', name)
+                        # print ('Import  dynamic or static object number ', counter, 'from initial state')
+                        # print ('                object name   ', name)
                         translation = obj.attrs['translation']
                         orientation = obj.attrs['orientation']
                         velocity = obj.attrs['velocity']
@@ -1569,7 +1569,7 @@ class Hdf5():
 
         # (2) Time discretisation --
         timedisc = TimeDiscretisation(t0, h)
-
+        
 
         if (friction_contact_trace == False) :
             if len(joints) > 0:
@@ -1583,13 +1583,18 @@ class Hdf5():
 
         if numerics_has_openmp_solvers :
             if  osnspb.numericsSolverOptions().solverId == Numerics.SICONOS_FRICTION_3D_NSGS_OPENMP:
-                n_thread =6
-                osnspb.numericsSolverOptions().iparam[10] = n_thread
+                pass
+                # n_thread =6
+                # osnspb.numericsSolverOptions().iparam[10] = n_thread
 
         osnspb.numericsSolverOptions().internalSolvers.iparam[0] = 10
-        osnspb.numericsSolverOptions().iparam[8] = 1
-        osnspb.numericsSolverOptions().iparam[9] = 1
-        osnspb.numericsSolverOptions().dparam[0] = tolerance
+        osnspb.numericsSolverOptions().iparam[8]  = 300 # error iterations
+        osnspb.numericsSolverOptions().iparam[9]  = 0   # dynamic iterations
+        osnspb.numericsSolverOptions().iparam[11] = 4   # openmp full
+        osnspb.numericsSolverOptions().iparam[1]  = 0   # full error evalution
+        osnspb.numericsSolverOptions().iparam[14] = 50  # full GS frequency
+        osnspb.numericsSolverOptions().dparam[0]  = tolerance
+
         osnspb.setMaxSize(30000)
         osnspb.setMStorageType(1)
         osnspb.setNumericsVerboseMode(numerics_verbose)
@@ -1641,6 +1646,7 @@ class Hdf5():
 
             print ('step', k, '<', k0 + int((T - t0) / h))
 
+            print ('import births')
             log(self.importBirths(body_class=body_class,
                                   shape_class=shape_class,
                                   face_class=face_class,
@@ -1649,9 +1655,11 @@ class Hdf5():
             if controller is not None:
                 controller.step()
 
+            print ('build interactions')
             log(self._broadphase.buildInteractions, with_timer)\
                 (model.currentTime())
 
+            print ('compute one step')
             log(simulation.computeOneStep, with_timer)()
 
             if (k % self._output_frequency == 0) or (k == 1):
@@ -1699,6 +1707,7 @@ class Hdf5():
                     print('  velocity min :',np.min(v))
                 #     #print(simulation.output(1,0))
 
+            print ('next step')
 
             log(simulation.nextStep, with_timer)()
 

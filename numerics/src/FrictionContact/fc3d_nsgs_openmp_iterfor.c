@@ -130,12 +130,14 @@ void fc3d_nsgs_openmp_iterfor(FrictionContactProblem* problem, double *reaction,
   double error_delta_reaction=0.0;
   double error_nat=0.0;
   unsigned int *scontacts = NULL;
+  int fullGS = 1;
+  if (options->iparam[14] > 0)
+    fullGS = options->iparam[14];
 
-  /* note that this is a different interpretation of iparam[8] in
-   * 'for' version, where it means at what frequency we should check
-   * the error -- here it is how many iterations should run in
-   * parallel, and after all parallel iterations we always check the
-   * error */
+  printf("threads = %d\n", omp_get_max_threads());
+
+  double t0 = omp_get_wtime();
+
   int iters_at_once = iparam[8];
   if (iters_at_once < 1)
     iters_at_once = 1;
@@ -191,11 +193,8 @@ void fc3d_nsgs_openmp_iterfor(FrictionContactProblem* problem, double *reaction,
     }
 
     iter += iters_at_once;
+    printf("Iteration %d.. ", iter);
 
-    /* Note that this is a different interpretation of iparam[14] than
-     * full GS -- instead of specifying the frequency of running
-     * serial GS, we always run this number of serial GS iterations
-     * after each bunch of parallel iterations */
     for (int k=0; k < options->iparam[14]; ++k)
     {
       iter ++;
@@ -254,6 +253,11 @@ void fc3d_nsgs_openmp_iterfor(FrictionContactProblem* problem, double *reaction,
 
 
     }
+    printf("error = %g", error);
+    double t = omp_get_wtime();
+    printf("    time per iter = %g", (t - t0)/iter);
+    printf("      \r");
+    fflush(stdout);
 
     *info = hasNotConverged;
 
@@ -268,6 +272,7 @@ void fc3d_nsgs_openmp_iterfor(FrictionContactProblem* problem, double *reaction,
   dparam[0] = tolerance;
   dparam[1] = error;
   iparam[7] = iter;
+  printf("\n");
 
   /***** Free memory *****/
   for (unsigned int i=0; i < max_threads; i++)

@@ -140,12 +140,16 @@ int FrictionContact::solve(SP::FrictionContactProblem problem)
                                     &*_numerics_options);
 }
 
-
+#include <omp.h>
 int FrictionContact::compute(double time)
 {
   int info = 0;
   // --- Prepare data for FrictionContact computing ---
+  printf("FrictionContact::preCompute..\n");
+  double tv1, tv2, tv3, tv4;
+  tv1 = omp_get_wtime();
   bool cont = preCompute(time);
+  tv2 = omp_get_wtime();
   if (!cont)
   {
     return info;
@@ -167,9 +171,15 @@ int FrictionContact::compute(double time)
   if (_sizeOutput != 0)
   {
     // Call Numerics Driver for FrictionContact
+    printf("FrictionContact::solve..\n");
     info = solve();
+    tv3 = omp_get_wtime();
+    printf("FrictionContact::postCompute..\n");
     postCompute();
+    tv4 = omp_get_wtime();
   }
+  printf("times: preCompute = %f, solve = %f, postCompute = %f\n",
+         tv2 - tv1, tv3 - tv2, tv4 - tv3);
 
   return info;
 }

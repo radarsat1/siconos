@@ -11,9 +11,9 @@ import siconos.numerics as Numerics
 
 import random
 
-n_cube=3
-n_row=2
-n_col=2
+n_cube=300
+n_row=5
+n_col=5
 # Creation of the hdf5 file for input/output
 with Hdf5() as io:
     for i in range(n_row):
@@ -88,8 +88,8 @@ with Hdf5() as io:
 # with the vview command.
 
 
-nstep=20000
-step=0.0005
+nstep=6
+step=0.005
 with Hdf5(mode='r+') as io:
 
     # By default earth gravity is applied and the units are those
@@ -111,8 +111,9 @@ with Hdf5(mode='r+') as io:
            theta=0.50001,
            Newton_max_iter=1,
            set_external_forces=None,
-           solver=Numerics.SICONOS_FRICTION_3D_NSGS,
-           itermax=100,
+           solver=Numerics.SICONOS_FRICTION_3D_NSGS_OPENMP,
+           #solver=Numerics.SICONOS_FRICTION_3D_NSGS,
+           itermax=100000,
            tolerance=1e-4,
            numerics_verbose=False,
-           output_frequency=100)
+           output_frequency=1)

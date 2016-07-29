@@ -299,10 +299,10 @@ void allocateMemoryForProdSBMSBM(const SparseBlockStructuredMatrix* const A, con
   /*     \warning The implementation is chosen to optimize cpu effort rather than memory. Otherwise a two loops are needed */
   int nbblocksmax = A->blocknumber0 * B->blocknumber1;
 
-  double **Cblocktmp = (double**)malloc(nbblocksmax * sizeof(double*));
-  size_t *Cindex2_datatmp = (size_t*)malloc(nbblocksmax * sizeof(size_t));
+  double **Cblocktmp = (double**)aligned_alloc(16, nbblocksmax * sizeof(double*));
+  size_t *Cindex2_datatmp = (size_t*)aligned_alloc(16, nbblocksmax * sizeof(size_t));
   C->filled1 = C->blocknumber0 + 1;
-  C->index1_data = (size_t*)malloc(C->filled1 * sizeof(size_t));
+  C->index1_data = (size_t*)aligned_alloc(16, C->filled1 * sizeof(size_t));
   C->index1_data[0] = 0;
   for (currentRowNumberofA = 0 ; currentRowNumberofA < A->filled1 - 1; ++currentRowNumberofA)
   {
@@ -335,7 +335,7 @@ void allocateMemoryForProdSBMSBM(const SparseBlockStructuredMatrix* const A, con
             if (currentColNumberofB != 0)
               Cblocksize1 -= B->blocksize1[currentColNumberofB - 1];
             /*           printf("of size %dX%d\n",Cblosksize0,Cblocksize1  ); */
-            Cblocktmp[C->nbblocks] = (double*)malloc(Cblosksize0 * Cblocksize1 * sizeof(double));
+            Cblocktmp[C->nbblocks] = (double*)aligned_alloc(16, Cblosksize0 * Cblocksize1 * sizeof(double));
             for (unsigned int i = 0; i < Cblosksize0 * Cblocksize1; i++) Cblocktmp[C->nbblocks][i] = 0.0;
 
             C->index1_data[currentRowNumberofA + 1]++ ;
@@ -352,8 +352,8 @@ void allocateMemoryForProdSBMSBM(const SparseBlockStructuredMatrix* const A, con
   C->nbblocks++;
   C->filled2++;
   assert(C->nbblocks ==  C->filled2);
-  C->block = (double**)malloc(C->nbblocks * sizeof(double*));
-  C->index2_data = (size_t*)malloc(C->nbblocks * sizeof(size_t));
+  C->block = (double**)aligned_alloc(16, C->nbblocks * sizeof(double*));
+  C->index2_data = (size_t*)aligned_alloc(16, C->nbblocks * sizeof(size_t));
 
   for (unsigned int i = 0 ; i < C->nbblocks; i++)  C->block[i] = Cblocktmp[i];
   /*   for (i =0 ; i <C->nbblocks; i++)   */
@@ -803,6 +803,96 @@ void rowProdNoDiagSBM3x3(unsigned int sizeX, unsigned int sizeY, unsigned int cu
       mvp3x3(A->block[blockNum], &x[posInX], y);
     }
   }
+}
+
+void rowProdNoDiagSBM3x3par(unsigned int sizeX, unsigned int sizeY, unsigned int currentRowNumber, const SparseBlockStructuredMatrix* const A, double* const x, double* y)
+{
+  /*
+     If: A is a SparseBlockStructuredMatrix matrix, Aij a block at row
+     i and column j (Warning: i and j are indices of block position,
+     not scalar component positions)
+
+     Then rowProdNoDiagSBM computes y = sum for i not equal to j of
+     Aij.xj over a row of blocks (or += if init = false)
+
+     currentRowNumber represents the position (block number) of the
+     required line of blocks in the matrix A.
+
+  */
+
+
+  /* Column (block) position of the current block*/
+  size_t colNumber = 0;
+
+  /* Number of rows/columns of the current block */
+  unsigned int nbRows, nbColumns;
+
+  /* Position of the sub-block of x multiplied by the sub-block of
+   * A */
+  unsigned int posInX = 0;
+
+  /* Look for the first element of the wanted row */
+
+  /* Assertions */
+  assert(A);
+  assert(x);
+  assert(y);
+  assert(sizeX == A->blocksize1[A->blocknumber1 - 1]);
+  assert(currentRowNumber <= A->blocknumber0);
+
+  /* Get dim (rows) of the current block */
+  nbRows = sizeY;
+
+  /*  if this is important, move it into a function --xhub */
+  /*   assert(
+    {
+      nbRows = A->blocksize0[currentRowNumber];
+      if(currentRowNumber!=0)
+        nbRows -= A->blocksize0[currentRowNumber-1];
+      nbRows == sizeY ;
+    });*/
+
+
+  /* Loop over all non-null blocks. Works whatever the ordering order
+     of the block is, in A->block, but it requires a set to 0 of all y
+     components
+  */
+  double y0=0,y1=0,y2=0;
+  #pragma omp parallel for private(colNumber, nbColumns, posInX) \
+    reduction(+:y0) reduction(+:y1) reduction(+:y2)
+  for (size_t blockNum = A->index1_data[currentRowNumber];
+       blockNum < A->index1_data[currentRowNumber + 1];
+       ++blockNum)
+  {
+    /* Get row/column position of the current block */
+    colNumber = A->index2_data[blockNum];
+
+    /* Computes product only for extra diagonal blocks */
+    if (colNumber != currentRowNumber)
+    {
+      /* Get dim(columns) of the current block */
+      nbColumns = A->blocksize1[colNumber];
+      if (colNumber != 0)
+        nbColumns -= A->blocksize1[colNumber - 1];
+
+      /* Get position in x of the sub-block multiplied by A sub-block */
+      posInX = 0;
+      if (colNumber != 0)
+        posInX += A->blocksize0[colNumber - 1];
+      /* Computes y[] += currentBlock*x[] */
+      /* cblas_dgemv(CblasColMajor,CblasNoTrans, nbRows, nbColumns, 1.0, A->block[blockNum], nbRows, &x[posInX], 1, 1.0, y, 1); */
+      assert((nbColumns == 3));
+      assert((nbRows == 3));
+      double tmpy[3] = {0,0,0};
+      mvp3x3(A->block[blockNum], &x[posInX], tmpy);
+      y0 += tmpy[0];
+      y1 += tmpy[1];
+      y2 += tmpy[2];
+    }
+  }
+  y[0] += y0;
+  y[1] += y1;
+  y[2] += y2;
 }
 
 void rowProdNoDiagSBM3x3_index_block(unsigned int sizeX, unsigned int sizeY, unsigned int currentRowNumber,

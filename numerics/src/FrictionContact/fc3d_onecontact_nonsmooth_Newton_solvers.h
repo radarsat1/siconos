@@ -78,6 +78,10 @@ typedef void (*computeNonsmoothFunction)(double *, double * , double , double * 
   void fc3d_onecontact_nonsmooth_Newton_AC_update(int number, FrictionContactProblem* problem, FrictionContactProblem* localproblem ,
                                    double * reaction, SolverOptions* options);
 
+  /* same as above but using row-parallel sparse block matrix multiply */
+  void fc3d_onecontact_nonsmooth_Newton_AC_update_rowpar(int number, FrictionContactProblem* problem, FrictionContactProblem* localproblem ,
+                                   double * reaction, SolverOptions* options);
+
   int fc3d_onecontact_nonsmooth_Newton_solvers_solve_direct(FrictionContactProblem* localproblem,
                                  double * R, int *iparam, double *dparam);
 

@@ -452,6 +452,7 @@ void TimeStepping::advanceToEvent()
   DEBUG_PRINTF("TimeStepping::advanceToEvent(). Time =%f\n",getTkp1());
 
   // Initialize lambdas of all interactions.
+  printf("Initialize lambdas of all interactions..\n");
   SP::InteractionsGraph indexSet0 = _nsds->
                                     topology()->indexSet(0);
   InteractionsGraph::VIterator ui, uiend, vnext;
@@ -461,6 +462,7 @@ void TimeStepping::advanceToEvent()
     ++vnext;
     indexSet0->bundle(*ui)->resetAllLambda();
   }
+  printf("newtonSolve..\n");
   newtonSolve(_newtonTolerance, _newtonMaxIteration);
 
 }
@@ -530,6 +532,7 @@ void TimeStepping::newtonSolve(double criterion, unsigned int maxStep)
   InteractionsGraph& indexSet0 = *_nsds->topology()->indexSet0();
   bool hasNSProblems = (!_allNSProblems->empty() &&   indexSet0.size() > 0) ? true : false;
 
+  printf("initializeNewtonLoop..\n");
   initializeNewtonLoop();
 
   if ((_newtonOptions == SICONOS_TS_LINEAR || _newtonOptions == SICONOS_TS_LINEAR_IMPLICIT)
@@ -562,7 +565,9 @@ void TimeStepping::newtonSolve(double criterion, unsigned int maxStep)
       DEBUG_BEGIN("          \n");
       DEBUG_END("          \n");
       _newtonNbIterations++;
+      printf("prepareNewtonIteration..\n");
       prepareNewtonIteration();
+      printf("computeFreeState..\n");
       computeFreeState();
       if (info)
         std::cout << "New Newton loop because of nonsmooth solver failed\n" <<std::endl;
@@ -576,6 +581,7 @@ void TimeStepping::newtonSolve(double criterion, unsigned int maxStep)
       // is also relevant here.
       if (hasNSProblems)
       {
+        printf("computeOneStepNSProblem..\n");
         info = computeOneStepNSProblem(SICONOS_OSNSP_TS_VELOCITY);
       }
       // Check output from solver (convergence or not ...)
@@ -585,6 +591,7 @@ void TimeStepping::newtonSolve(double criterion, unsigned int maxStep)
         checkSolverOutput(info, this);
 
       update(_levelMaxForInput);
+      printf("newtonCheckConvergence..\n");
       _isNewtonConverge = newtonCheckConvergence(criterion);
 
       if (!_isNewtonConverge && !info)

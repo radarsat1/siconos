@@ -29,6 +29,7 @@
 #include <assert.h>
 #include <time.h>
 #include <float.h>
+#include <omp.h>
 
 #pragma GCC diagnostic ignored "-Wmissing-prototypes"
 
@@ -70,7 +71,6 @@ void fc3d_nsgs_initialize_local_solver(SolverPtr* solve, UpdatePtr* update, Free
                                 FrictionContactProblem* problem, FrictionContactProblem* localproblem,
                                 SolverOptions * options, SolverOptions * localsolver_options)
 {
-
   /** Connect to local solver */
   switch (localsolver_options->solverId)
   {
@@ -207,6 +207,13 @@ void fc3d_nsgs_initialize_local_solver(SolverPtr* solve, UpdatePtr* update, Free
     fprintf(stderr, "Numerics, fc3d_nsgs failed. Unknown internal solver : %s.\n", solver_options_id_to_name(localsolver_options->solverId));
     exit(EXIT_FAILURE);
   }
+  }
+
+  if (options->iparam[11] == 3
+      && options->solverId == SICONOS_FRICTION_3D_NSGS_OPENMP
+      && *update == &fc3d_onecontact_nonsmooth_Newton_AC_update)
+  {
+    *update = &fc3d_onecontact_nonsmooth_Newton_AC_update_rowpar;
   }
 }
 void fc3d_nsgs_computeqLocal(FrictionContactProblem * problem, FrictionContactProblem * localproblem, double *reaction, int contact)
@@ -715,6 +722,7 @@ void fc3d_nsgs(FrictionContactProblem* problem, double *reaction, double *veloci
         while ((iter < itermax) && (hasNotConverged > 0))
         {
           ++iter;
+          printf("Iteration %d.. ", iter);
           /* Loop through the contact points */
           //cblas_dcopy( n , q , incx , velocity , incy );
           for (contact= 0 ; contact < nc ; ++contact)
@@ -755,6 +763,9 @@ void fc3d_nsgs(FrictionContactProblem* problem, double *reaction, double *veloci
             if (verbose > 0)
               printf("----------------------------------- FC3D - NSGS - Iteration %i Residual = %14.7e > %7.3e\n", iter, error, options->dparam[0]);
           }
+          printf("error = %g", error);
+          printf("      \r");
+          fflush(stdout);
 
           *info = hasNotConverged;
 
@@ -765,39 +776,54 @@ void fc3d_nsgs(FrictionContactProblem* problem, double *reaction, double *veloci
                                                      error, NULL);
           }
         }
+        printf("\n");
 
       }
       else if (iparam[4] == SICONOS_FRICTION_3D_NSGS_RELAXATION_FALSE)
       {
+        double t0omp = omp_get_wtime();
         while ((iter < itermax) && (hasNotConverged > 0))
         {
           ++iter;
+          printf("Iteration %d.. ", iter);
           /* Loop through the contact points */
           //cblas_dcopy( n , q , incx , velocity , incy );
 
           for (contact= 0 ; contact < nc ; ++contact)
           {
-
-
             if (verbose > 1) printf("----------------------------------- Contact Number %i\n", contact);
 
+            //printf("Updating local problem %d..\n", contact);
             (*update_localproblem)(contact, problem, localproblem, reaction, localsolver_options);
             localsolver_options->iparam[4] = contact;
+            //printf("Solving local problem %d..\n", contact);
             (*local_solver)(localproblem, &(reaction[3 * contact]), localsolver_options);
           }
+          /* printf("done.\n"); */
 
           /* **** Criterium convergence **** */
           if (iparam[8] >0)
           {
             if (iter % iparam[8] == 0) {
+              /* printf("Computing error.."); */
+              /* fflush(stdout); */
               (*computeError)(problem, reaction , velocity, tolerance, options, normq,  &error);
+              /* printf("done.\n"); */
               if (error > tolerance && iparam[9] == 1)
                 iparam[8] *= 2;
             }
           }
-          else
+          else {
+            /* printf("Computing error.."); */
+            /* fflush(stdout); */
             (*computeError)(problem, reaction , velocity, tolerance, options, normq,  &error);
-
+            /* printf("done.\n"); */
+          }
+          printf("error = %g", error);
+          double t1omp = omp_get_wtime();
+          printf("    time per iter = %g", (t1omp - t0omp)/iter);
+          printf("      \r");
+          fflush(stdout);
 
           if (error < tolerance)
           {
@@ -822,6 +848,7 @@ void fc3d_nsgs(FrictionContactProblem* problem, double *reaction, double *veloci
         }
         if (iparam[9] == 1 && (iter == iparam[8] || iparam[9] > itermax))
           iparam[8] = iparam[8]==1 ? 1 : iparam[8]/2;
+        printf("\n");
       }
       else
       {
