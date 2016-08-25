@@ -16,10 +16,10 @@ import tempfile
 from contextlib import contextmanager
 from operator import itemgetter
 
-try:
-    import vtk
-except:
-    pass
+# try:
+#     import vtk
+# except:
+#     pass
 
 from siconos.mechanics.contact_detection.tools import Contactor
 
