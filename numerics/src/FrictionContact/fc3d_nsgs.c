@@ -392,6 +392,25 @@ unsigned int* allocShuffledContacts(FrictionContactProblem *problem,
 }
 
 static
+void dump_reaction_history(char *fn)
+{
+  printf("Dumping reaction history..\n");
+  FILE *f = 0;
+  f = fopen(fn, "w");
+  if (!f) {
+    printf("file problem\n");
+    exit(1);
+  }
+  for (int i=0; i<reaction_history_pos; i++)
+  {
+    fprintf(f, "%g,%g,%g\n", reaction_history[i][0],
+            reaction_history[i][1],
+            reaction_history[i][2]);
+  }
+  fclose(f);
+}
+
+static
 void dump_problem_volume_and_quit(char *fn,
                                   FrictionContactProblem *localproblem,
                                   SolverOptions *localsolver_options)
@@ -488,6 +507,7 @@ void acceptLocalReactionProjected(int *rc, FrictionContactProblem *problem,
   int nan1 = isnan(localsolver_options->dparam[1]) || isinf(localsolver_options->dparam[1]);
   if (nan1 || localsolver_options->dparam[1] > 1.0)
   {
+    /*
     if (isnan(localsolver_options->dparam[1])) {
       printf("Problem resulted in NaN\n");
       dump_problem_volume_and_quit("badproblem.csv", localproblem, localsolver_options);
@@ -495,6 +515,16 @@ void acceptLocalReactionProjected(int *rc, FrictionContactProblem *problem,
     }
     else {
       dump_problem_volume_and_quit("goodproblem.csv", localproblem, localsolver_options);
+    }
+    */
+
+    if (isnan(localsolver_options->dparam[1])) {
+      printf("Problem resulted in NaN\n");
+      dump_reaction_history("badreaction.csv");
+      exit(1);
+    }
+    else {
+      dump_reaction_history("goodreaction.csv");
     }
 
     /* DEBUG_EXPR( */

@@ -84,6 +84,8 @@ typedef void (*computeNonsmoothFunction)(double *, double * , double , double * 
   int fc3d_onecontact_nonsmooth_Newton_solvers_solve_damped(FrictionContactProblem* localproblem,
                                        double * R, int *iparam, double *dparam);
 
+  extern double reaction_history[100][3];
+  extern int reaction_history_pos;
   double fc3d_onecontact_nonsmooth_Newton_solvers_solve_damped_oneitereval(
     FrictionContactProblem* localproblem, double * R, int *iparam,
     double *dparam);

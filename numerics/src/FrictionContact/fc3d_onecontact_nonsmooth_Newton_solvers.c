@@ -749,6 +749,9 @@ double fc3d_onecontact_nonsmooth_Newton_solvers_solve_damped_oneitereval(
     / (1.0 + sqrt(R[0] * R[0] + R[1] * R[1] + R[2] * R[2]));
 }
 
+double reaction_history[100][3];
+int reaction_history_pos;
+
 int fc3d_onecontact_nonsmooth_Newton_solvers_solve_damped(FrictionContactProblem* localproblem, double * R, int *iparam, double *dparam)
 {
   DEBUG_PRINT("fc3d_onecontact_nonsmooth_Newton_solvers_solve_damped() starts \n");
@@ -806,6 +809,9 @@ int fc3d_onecontact_nonsmooth_Newton_solvers_solve_damped(FrictionContactProblem
   for (i = 0; i < 3; i++) velocity[i] = MLocal[i + 0 * 3] * R[0] + qLocal[i]
                                           + MLocal[i + 1 * 3] * R[1] +
                                           + MLocal[i + 2 * 3] * R[2] ;
+
+  reaction_history_pos = 0;
+  memset(reaction_history, INFINITY, sizeof(double)*300);
 
   DEBUG_EXPR_WE(for (int i =0 ; i < 3; i++) printf("R[%i]= %12.8e,\t velocity[%i]= %12.8e,\n",i,R[i],i,velocity[i]););
   DEBUG_PRINT("fc3d_onecontact_nonsmooth_Newton_solvers_solve_damped -- Start Newton iteration\n");
