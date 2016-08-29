@@ -84,6 +84,10 @@ typedef void (*computeNonsmoothFunction)(double *, double * , double , double * 
   int fc3d_onecontact_nonsmooth_Newton_solvers_solve_damped(FrictionContactProblem* localproblem,
                                        double * R, int *iparam, double *dparam);
 
+  double fc3d_onecontact_nonsmooth_Newton_solvers_solve_damped_oneitereval(
+    FrictionContactProblem* localproblem, double * R, int *iparam,
+    double *dparam);
+
   /* Set the default solver options for the ONECONTACT_NSN_AC Solver
    * Some default values:
    * options.iparam[0] = 200 is the maximum number of iterations.

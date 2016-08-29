@@ -728,6 +728,27 @@ static int LineSearchGP(FrictionContactProblem* localproblem,
   return -1;
 }
 
+double fc3d_onecontact_nonsmooth_Newton_solvers_solve_damped_oneitereval(
+  FrictionContactProblem* localproblem, double * R, int *iparam,
+  double *dparam)
+{
+  double mu = localproblem->mu[0];
+  double rho[3] = {1., 1., 1.};
+  double velocity[3] = {0., 0., 0.};
+  double A[9] = {0., 0., 0., 0., 0., 0., 0., 0., 0.};
+  double B[9] = {0., 0., 0., 0., 0., 0., 0., 0., 0.};
+  double F[3] = {0., 0., 0.};
+  double * qLocal = localproblem->q;
+  double * MLocal = localproblem->M->matrix0;
+  for (int i = 0; i < 3; i++)
+    velocity[i] = MLocal[i + 0 * 3] * R[0] + qLocal[i]
+                + MLocal[i + 1 * 3] * R[1]
+                + MLocal[i + 2 * 3] * R[2] ;
+  Function(R, velocity, mu, rho, F, A, B);
+  return 0.5 * (F[0] * F[0] + F[1] * F[1] + F[2] * F[2])
+    / (1.0 + sqrt(R[0] * R[0] + R[1] * R[1] + R[2] * R[2]));
+}
+
 int fc3d_onecontact_nonsmooth_Newton_solvers_solve_damped(FrictionContactProblem* localproblem, double * R, int *iparam, double *dparam)
 {
   DEBUG_PRINT("fc3d_onecontact_nonsmooth_Newton_solvers_solve_damped() starts \n");

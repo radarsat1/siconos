@@ -392,6 +392,38 @@ unsigned int* allocShuffledContacts(FrictionContactProblem *problem,
 }
 
 static
+void dump_problem_volume_and_quit(char *fn,
+                                  FrictionContactProblem *localproblem,
+                                  SolverOptions *localsolver_options)
+{
+  printf("Dumping problem volume..\n");
+  FILE *f = 0;
+  f = fopen(fn, "w");
+  if (!f) {
+    printf("file problem\n");
+    exit(1);
+  }
+  for (int i=0; i<100; i++) {
+    for (int j=0; j<100; j++) {
+      for (int k=0; k<100; k++) {
+        double range = 1000.0;
+        double r0 = (i/100.0 * 2.0 - 1.0) * range;
+        double r1 = (j/100.0 * 2.0 - 1.0) * range;
+        double r2 = (k/100.0 * 2.0 - 1.0) * range;
+        double R[3] = {r0, r1, r2};
+        double val =
+          fc3d_onecontact_nonsmooth_Newton_solvers_solve_damped_oneitereval(
+            localproblem, R, localsolver_options->iparam,
+            localsolver_options->dparam);
+        //fprintf(f, "%g,%g,%g,%g\n", r0, r1, r2, val);
+        fprintf(f, "%g\n", log10(val));
+      }
+    }
+  }
+  fclose(f);
+}
+
+static
 int solveLocalReaction(UpdatePtr update_localproblem, SolverPtr local_solver,
                        unsigned int contact, FrictionContactProblem *problem,
                        FrictionContactProblem *localproblem, double *reaction,
@@ -456,6 +488,15 @@ void acceptLocalReactionProjected(int *rc, FrictionContactProblem *problem,
   int nan1 = isnan(localsolver_options->dparam[1]) || isinf(localsolver_options->dparam[1]);
   if (nan1 || localsolver_options->dparam[1] > 1.0)
   {
+    if (isnan(localsolver_options->dparam[1])) {
+      printf("Problem resulted in NaN\n");
+      dump_problem_volume_and_quit("badproblem.csv", localproblem, localsolver_options);
+      exit(1);
+    }
+    else {
+      dump_problem_volume_and_quit("goodproblem.csv", localproblem, localsolver_options);
+    }
+
     /* DEBUG_EXPR( */
     /*   frictionContact_display(localproblem); */
     #define DEBUG_PRINTF printf
