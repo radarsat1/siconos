@@ -691,6 +691,9 @@ void fc3d_nsgs(FrictionContactProblem* problem, double *reaction,
 
   /*****  NSGS Iterations *****/
 
+#define BIGREACTION(x) ((x)>1e10 || (x)<-1e10)
+#define BADREACTION(x) (isnan(x) || isinf(x))
+
   /* A special case for the most common options (should correspond
    * with mechanics_io.py **/
   if (iparam[5] == SICONOS_FRICTION_3D_NSGS_SHUFFLE_FALSE
@@ -698,6 +701,8 @@ void fc3d_nsgs(FrictionContactProblem* problem, double *reaction,
       && iparam[14] == SICONOS_FRICTION_3D_NSGS_FILTER_LOCAL_SOLUTION_TRUE
       && iparam[1] == SICONOS_FRICTION_3D_NSGS_ERROR_EVALUATION_LIGHT_WITH_FULL_FINAL)
   {
+    int *badi = calloc(nc, sizeof(int));
+    double *badr = calloc(nc*4, sizeof(double));
     while ((iter < itermax) && (hasNotConverged > 0))
     {
       ++iter;
@@ -705,6 +710,16 @@ void fc3d_nsgs(FrictionContactProblem* problem, double *reaction,
       for (unsigned int i = 0 ; i < nc ; ++i)
       {
         contact = i;
+        double localreaction[3] = {
+          reaction[i*3+0], reaction[i*3+1], reaction[i*3+2] };
+        if (BADREACTION(localreaction[0]) ||
+            BADREACTION(localreaction[1]) ||
+            BADREACTION(localreaction[2])) {
+          printf("bad reaction found on _input_! for contact %d\n", i);
+          printf(": (%g, %g, %g) <- (%g, %g, %g)\n", localreaction[0],
+                 localreaction[1], localreaction[2],
+                 reaction[i*3+0], reaction[i*3+1], reaction[i*3+2]);
+        }
         solveLocalReaction(update_localproblem, local_solver, contact,
                            problem, localproblem, reaction, localsolver_options,
                            localreaction);
@@ -712,12 +727,68 @@ void fc3d_nsgs(FrictionContactProblem* problem, double *reaction,
         accumulateLightErrorSum(&light_error_sum, localreaction, &reaction[contact*3]);
 
         #if 0
+          acceptLocalReactionUnconditionally(contact, reaction, localreaction);
+        #else
+        #if 0
         acceptLocalReactionFiltered(localproblem, localsolver_options,
                                     contact, iter, reaction, localreaction);
         #else
         // Experimental
         acceptLocalReactionProjected(problem, localproblem, local_solver, localsolver_options,
                                      contact, iter, reaction, localreaction);
+        #endif
+        #endif
+        #if 0
+        if (rc==1
+	    || BADREACTION(reaction[i*3])
+            || BADREACTION(reaction[i*3+1])
+            || BADREACTION(reaction[i*3+2])
+	    || BIGREACTION(reaction[i*3])
+            || BIGREACTION(reaction[i*3+1])
+            || BIGREACTION(reaction[i*3+2]))
+        {
+          badi[i] = iter;
+          badr[i*4+0] = reaction[i*3+0];
+          badr[i*4+1] = reaction[i*3+1];
+          badr[i*4+2] = reaction[i*3+2];
+          badr[i*4+3] = dparam[1];
+          printf("bad value (%g, %g, %g)  (rc=%d) found\n",
+                 reaction[i*3],
+                 reaction[i*3+1],
+                 reaction[i*3+2], rc);
+        }
+        #endif
+
+        #if 0
+        if (BADREACTION(reaction[i*3])
+            || BADREACTION(reaction[i*3+1])
+            || BADREACTION(reaction[i*3+2]))
+        {
+          printf("bad value (%g, %g, %g) found, resetting to %g, %g, %g\n",
+                 reaction[i*3],
+                 reaction[i*3+1],
+                 reaction[i*3+2],
+                 localreaction[0],
+                 localreaction[1],
+                 localreaction[2]);
+          reaction[i*3]=localreaction[0];
+          reaction[i*3+1]=localreaction[1];
+          reaction[i*3+2]=localreaction[2];
+
+          if (BADREACTION(reaction[i*3])
+              || BADREACTION(reaction[i*3+1])
+              || BADREACTION(reaction[i*3+2]))
+          { // bad values on input! without this, normq>0 error
+            reaction[i*3] = 0;
+            reaction[i*3+1] = 0;
+            reaction[i*3+2] = 0;
+            printf("still bad, now set to %g, %g, %g\n",
+                   reaction[i*3],
+                   reaction[i*3+1],
+                   reaction[i*3+2]);
+          }
+          //abort();
+        }
         #endif
       }
 
@@ -727,6 +798,15 @@ void fc3d_nsgs(FrictionContactProblem* problem, double *reaction,
 
       statsIterationCallback(problem, options, reaction, velocity, error);
     }
+    for (int i=0; i<nc; i++) {
+      if (badi[i] > 0) {
+	printf("Bad reaction for contact %d on interation %d\n", i, badi[i]);
+	printf(": %g, %g, %g (solver dparam[1]=%g)\n",
+	       badr[i*4], badr[i*4+1], badr[i*4+2], badr[i*4+3]);
+      }
+    }
+    free(badi);
+    free(badr);
   }
 
   /* All other cases, we put all the ifs inline.. otherwise, too many
