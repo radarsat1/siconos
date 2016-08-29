@@ -446,7 +446,7 @@ void acceptLocalReactionFiltered(FrictionContactProblem *localproblem,
 }
 
 static
-void acceptLocalReactionProjected(FrictionContactProblem *problem,
+void acceptLocalReactionProjected(int *rc, FrictionContactProblem *problem,
                                   FrictionContactProblem *localproblem,
                                   SolverPtr local_solver,
                                   SolverOptions *localsolver_options,
@@ -456,8 +456,9 @@ void acceptLocalReactionProjected(FrictionContactProblem *problem,
   int nan1 = isnan(localsolver_options->dparam[1]) || isinf(localsolver_options->dparam[1]);
   if (nan1 || localsolver_options->dparam[1] > 1.0)
   {
-    DEBUG_EXPR(
-      frictionContact_display(localproblem);
+    /* DEBUG_EXPR( */
+    /*   frictionContact_display(localproblem); */
+    #define DEBUG_PRINTF printf
 
       // In case of bad solution, re-solve with a projection-on-cone solver
       DEBUG_PRINTF("Discard local reaction for contact %i at iteration %i with local_error = %e\n", contact, iter, localsolver_options->dparam[1]);
@@ -498,13 +499,15 @@ void acceptLocalReactionProjected(FrictionContactProblem *problem,
           DEBUG_PRINTF("Keep the new local solution = %e\n", localsolver_options->dparam[1]);
           memcpy(&reaction[contact*3], localreaction, sizeof(double)*3);
           //getchar();
+          *rc = 0;
         }
         else
         {
           DEBUG_PRINTF("Keep the previous local solution = %e\n", localsolver_options->dparam[1]);
         }
       }
-    );
+    /* ); */
+      #undef DEBUG_PRINTF
   }
   else
     memcpy(&reaction[contact*3], localreaction, sizeof(double)*3);
@@ -720,6 +723,7 @@ void fc3d_nsgs(FrictionContactProblem* problem, double *reaction,
                  localreaction[1], localreaction[2],
                  reaction[i*3+0], reaction[i*3+1], reaction[i*3+2]);
         }
+        int rc =
         solveLocalReaction(update_localproblem, local_solver, contact,
                            problem, localproblem, reaction, localsolver_options,
                            localreaction);
@@ -734,11 +738,11 @@ void fc3d_nsgs(FrictionContactProblem* problem, double *reaction,
                                     contact, iter, reaction, localreaction);
         #else
         // Experimental
-        acceptLocalReactionProjected(problem, localproblem, local_solver, localsolver_options,
+        acceptLocalReactionProjected(&rc, problem, localproblem, local_solver, localsolver_options,
                                      contact, iter, reaction, localreaction);
         #endif
         #endif
-        #if 0
+        #if 1
         if (rc==1
 	    || BADREACTION(reaction[i*3])
             || BADREACTION(reaction[i*3+1])
@@ -752,10 +756,10 @@ void fc3d_nsgs(FrictionContactProblem* problem, double *reaction,
           badr[i*4+1] = reaction[i*3+1];
           badr[i*4+2] = reaction[i*3+2];
           badr[i*4+3] = dparam[1];
-          printf("bad value (%g, %g, %g)  (rc=%d) found\n",
+          printf("bad value (%g, %g, %g)  (rc=%d) found for contact %d\n",
                  reaction[i*3],
                  reaction[i*3+1],
-                 reaction[i*3+2], rc);
+                 reaction[i*3+2], rc, contact);
         }
         #endif
 
