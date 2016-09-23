@@ -455,11 +455,13 @@ void acceptLocalReactionProjected(FrictionContactProblem *problem,
                                   double *reaction, double localreaction[3])
 {
   int nan1 = isnan(localsolver_options->dparam[1]) || isinf(localsolver_options->dparam[1]);
+  double error_prev = localsolver_options->dparam[1];
   if (nan1 || localsolver_options->dparam[1] > 1.0)
   {
-    DEBUG_EXPR(
+    //DEBUG_EXPR(
       frictionContact_display(localproblem);
 
+      #define DEBUG_PRINTF printf
       // In case of bad solution, re-solve with a projection-on-cone solver
       DEBUG_PRINTF("Discard local reaction for contact %i at iteration %i with local_error = %e\n", contact, iter, localsolver_options->dparam[1]);
       memcpy(localreaction, &reaction[contact*3], sizeof(double)*3);
@@ -506,7 +508,7 @@ void acceptLocalReactionProjected(FrictionContactProblem *problem,
           DEBUG_PRINTF("Keep the previous local solution = %e\n", error_prev);
         }
       }
-    );
+      //);
   }
   else
     memcpy(&reaction[contact*3], localreaction, sizeof(double)*3);
@@ -713,14 +715,14 @@ void fc3d_nsgs(FrictionContactProblem* problem, double *reaction,
 
         accumulateLightErrorSum(&light_error_sum, localreaction, &reaction[contact*3]);
 
-        /* #if 0 */
+        #if 0
         acceptLocalReactionFiltered(localproblem, localsolver_options,
                                     contact, iter, reaction, localreaction);
-        /* #else */
-        /* // Experimental */
-        /* acceptLocalReactionProjected(problem, localproblem, local_solver, localsolver_options, */
-        /*                              contact, iter, reaction, localreaction); */
-        /* #endif */
+        #else
+        // Experimental
+        acceptLocalReactionProjected(problem, localproblem, local_solver, localsolver_options,
+                                     contact, iter, reaction, localreaction);
+        #endif
       }
 
       error = calculateLightError(light_error_sum, nc, reaction);
