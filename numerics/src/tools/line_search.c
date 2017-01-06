@@ -111,13 +111,13 @@ void get_non_monotone_ref(void* nm_ref_data, double* theta_ref)
 }
 
 
-void fill_nm_data(nm_ref_struct* nm_ref_data, int* restrict iparam)
+void fill_nm_data(nm_ref_struct* nm_ref_data, struct SolverOptionsParams *params)
 {
   assert(nm_ref_data);
   assert(iparam);
 
-  nm_ref_data->type = iparam[SICONOS_IPARAM_LSA_NONMONOTONE_LS];
-  nm_ref_data->M = iparam[SICONOS_IPARAM_LSA_NONMONOTONE_LS_M];
+  nm_ref_data->type = params->line_search.nonmonotone_ls;
+  nm_ref_data->M = params->line_search.nonmonotone_ls_m;
   nm_ref_data->m = 0;
   if (nm_ref_data->M > 0)
     nm_ref_data->previous_thetas = (double*)calloc(nm_ref_data->M, sizeof(double));

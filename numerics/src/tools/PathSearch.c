@@ -32,6 +32,10 @@ void free_solverData_PathSearch(void* solverData)
 
 void pathsearch_default_SolverOption(SolverOptions* options)
 {
+  options->params.line_search.nonmonotone_ls = NM_LS_MEAN;
+  options->params.line_search.nonmonotone_ls_m = 10;
+  options->params.path_search.nonmonotone_ls_m = 10;
+TODO is this ok, check how options are laid out
   options->iparam[SICONOS_IPARAM_LSA_NONMONOTONE_LS] = NM_LS_MEAN;
   options->iparam[SICONOS_IPARAM_LSA_NONMONOTONE_LS_M] = 10;
   options->iparam[SICONOS_IPARAM_PATHSEARCH_STACKSIZE] = 5;

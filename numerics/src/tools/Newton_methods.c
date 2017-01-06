@@ -72,21 +72,21 @@ void newton_LSA(unsigned n, double *z, double *F, int *info, void* data, SolverO
 
   double *workV1, *workV2;
   double *JacThetaF_merit, *F_merit;
-  unsigned int itermax = options->iparam[0];
-  double tol = options->dparam[0];
+  unsigned int itermax = options->params.common.max_iter;
+  double tol = options->params.common.tolerance;
 
   incx = 1;
   incy = 1;
 
   /*output*/
-  options->iparam[1] = 0;
-  options->dparam[1] = 0.0;
+  options->params.common.iter_done = 0;
+  options->params.common.residu = 0.0;
 
   // Maybe there is a better way to initialize
 //  for (unsigned int i = 0; i < n; i++) z[i] = 0.0;
 
   // if we keep the work space across calls
-  if (options->iparam[SICONOS_IPARAM_PREALLOC] && (options->dWork == NULL))
+  if (options->params.common.prealloc && (options->dWork == NULL))
   {
     options->dWork = (double *)calloc(4*n, sizeof(double));
     options->iWork = (int *)calloc(n, sizeof(int));
@@ -136,7 +136,7 @@ void newton_LSA(unsigned n, double *z, double *F, int *info, void* data, SolverO
   ls_data.F_merit = F_merit;
   ls_data.desc_dir = workV1;
   /** \todo this value should be settable by the user with a default value*/
-  ls_data.alpha_min = options->dparam[SICONOS_DPARAM_LSA_ALPHA_MIN];
+  ls_data.alpha_min = options->params.line_search.alpha_min;
   ls_data.alpha0 = 2.0;
   ls_data.data = data;
   ls_data.set = NULL;
@@ -144,7 +144,7 @@ void newton_LSA(unsigned n, double *z, double *F, int *info, void* data, SolverO
   ls_data.searchtype = LINESEARCH;
   ls_data.extra_params = NULL;
 
-  if (options->iparam[SICONOS_IPARAM_LSA_SEARCH_CRITERION] == SICONOS_LSA_GOLDSTEIN)
+  if (options->params.line_search.criterion == SICONOS_LSA_GOLDSTEIN)
   {
     goldstein_extra_params* pG = (goldstein_extra_params*)malloc(sizeof(goldstein_extra_params));
     ls_data.extra_params = (void*) pG;
@@ -164,7 +164,7 @@ void newton_LSA(unsigned n, double *z, double *F, int *info, void* data, SolverO
     }*/
     linesearch_algo = &linesearch_Goldstein2;
   }
-  else if (options->iparam[SICONOS_IPARAM_LSA_SEARCH_CRITERION] == SICONOS_LSA_ARMIJO)
+  else if (options->params.line_search.criterion == SICONOS_LSA_ARMIJO)
   {
     armijo_extra_params* pG = (armijo_extra_params*)malloc(sizeof(armijo_extra_params));
     ls_data.extra_params = (void*) pG;
@@ -177,7 +177,7 @@ void newton_LSA(unsigned n, double *z, double *F, int *info, void* data, SolverO
     linesearch_algo = &linesearch_Armijo2;
   }
 
-  if (options->iparam[SICONOS_IPARAM_LSA_FORCE_ARCSEARCH])
+  if (options->params.line_search.force_arcsearch)
   {
     assert(functions->get_set_from_problem_data && \
         "newton_LSA :: arc search selected but no et_set_from_problem_data provided!");
@@ -186,9 +186,9 @@ void newton_LSA(unsigned n, double *z, double *F, int *info, void* data, SolverO
   }
 
   nm_ref_struct nm_ref_data;
-  if (options->iparam[SICONOS_IPARAM_LSA_NONMONOTONE_LS] > 0)
+  if (options->params.line_search.nonmonotone_ls > 0)
   {
-    fill_nm_data(&nm_ref_data, options->iparam);
+    fill_nm_data(&nm_ref_data, &options->params);
     ls_data.nm_ref_data = &nm_ref_data;
   }
   else
@@ -337,8 +337,8 @@ void newton_LSA(unsigned n, double *z, double *F, int *info, void* data, SolverO
         {
           printf("Problem in DGESV, info = %d\n", info_dir_search);
         }
-        options->iparam[1] = iter;
-        options->dparam[1] = theta;
+        options->params.common.iter_done = iter;
+        options->params.common.residu = theta;
         *info = 2;
 
         goto newton_LSA_free;
@@ -447,8 +447,8 @@ void newton_LSA(unsigned n, double *z, double *F, int *info, void* data, SolverO
 
   }
 
-  options->iparam[1] = iter;
-  options->dparam[1] = err;
+  options->params.common.iter_done = iter;
+  options->params.common.residu  = err;
 
 
   if (verbose > 0)
@@ -494,9 +494,9 @@ newton_LSA_free:
 
 void newton_lsa_default_SolverOption(SolverOptions* options)
 {
-  options->iparam[SICONOS_IPARAM_LSA_NONMONOTONE_LS] = 0;
-  options->iparam[SICONOS_IPARAM_LSA_NONMONOTONE_LS_M] = 0;
-  options->dparam[SICONOS_DPARAM_LSA_ALPHA_MIN] = 0.;
+  options->params.line_search.nonmonotone_ls = 0;
+  options->params.line_search.nonmonotone_ls_m = 0;
+  options->params.line_search.alpha_min = 0.;
 }
 
 void set_lsa_params_data(SolverOptions* options, NumericsMatrix* mat)

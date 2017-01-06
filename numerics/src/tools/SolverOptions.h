@@ -41,6 +41,70 @@ typedef struct
 * extra data structure */
 } Callback;
 
+/* Solver Options Parameters */
+
+struct SiconosSolverCommonParams
+{
+  int max_iter;
+  int iter_done;
+  int prealloc;
+  double tolerance;
+  double residu;
+};
+
+struct SiconosSolverPivotBasedParams
+{
+  struct SiconosSolverCommonParams common;
+  int pivot_rule;
+};
+
+struct SiconosSolverPathSearchParams
+{
+  struct SiconosSolverCommonParams common;
+  int stack_size;
+};
+
+struct SiconosGoldsteinParams
+{
+  int itermax;
+  double c;
+  double alphamax;
+};
+
+struct SiconosNonMonotoneParams
+{
+  int watchdog_type;
+  int projected_gradient_type;
+  int n_max;
+  double delta;
+  double delta_var;
+  double sigma;
+  double alpha_min_watchdog;
+  double alpha_min_pgrad;
+  double merit_incr;
+};
+
+struct SiconosLineSearchParams
+{
+  struct SiconosSolverCommonParams common;
+  int nonmonotone_ls;
+  int nonmonotone_ls_m;
+  int force_arcsearch;
+  int criterion;
+  double alpha_min;
+  struct SiconosNonMonotoneParams nm;
+  struct SiconosGoldsteinParams goldstein;
+};
+
+struct SolverOptionsParams
+{
+  union {
+    struct SiconosSolverCommonParams common;
+    struct SiconosSolverPivotBasedParams pivot_based;
+    struct SiconosSolverPathSearchParams path_search;
+    struct SiconosLineSearchParams line_search;
+  };
+};
 
 /** \struct SolverOptions_ SolverOptions.h
     Structure used to send options (name, parameters and so on) to a specific solver (mainly from Kernel to Numerics).
@@ -49,10 +113,7 @@ struct SolverOptions
 {
   int solverId;                            /**< solverId Id of the solver (see ) */
   int isSet;                               /**< isSet int equal to false(0) if the parameters below have not been set (ie need to read default values) else true(1)*/
-  int iSize;                               /**< iSize size of vector iparam */
-  int * iparam;                            /**< iparam a list of int parameters (depends on each solver, see solver doc)*/
-  int dSize;                               /**< dSize size of vector dparam */
-  double * dparam;                         /**< dparam a list of double parameters (depends on each solver, see solver doc)*/
+  struct SolverOptionsParams params;       /**< solver parameters */
   int filterOn;                            /**< filterOn 1 to check solution validity after the driver call, else 0. Default = 1. (For example if
                                             * filterOn = 1 for a LCP, lcp_compute_error() will be called at the end of the process) */
   int dWorkSize;                           /**< dWorkSize size of vector iWork */
@@ -81,57 +142,6 @@ enum SICONOS_NUMERICS_PROBLEM_TYPE
   SICONOS_NUMERICS_PROBLEM_VI = 7,
   SICONOS_NUMERICS_PROBLEM_AVI = 8
 };
-
-
-/** Some value for iparam index */
-/* #define SICONOS_IPARAM_MAX_ITER 0 */
-/* #define SICONOS_IPARAM_ITER_DONE 1 */
-/* #define SICONOS_IPARAM_PREALLOC 2 */
-
-
-enum SICONOS_IPARAM
-{
-  SICONOS_IPARAM_MAX_ITER = 0,
-  SICONOS_IPARAM_ITER_DONE = 1,
-  SICONOS_IPARAM_PREALLOC = 2
-};
-
-/** for pivot based algorithm */
-#define SICONOS_IPARAM_PIVOT_RULE 3
-
-/** pathsearch specific data */
-#define SICONOS_IPARAM_PATHSEARCH_STACKSIZE 5
-
-/** line search based algo use this */
-#define SICONOS_IPARAM_LSA_NONMONOTONE_LS 3
-#define SICONOS_IPARAM_LSA_NONMONOTONE_LS_M 4
-#define SICONOS_IPARAM_LSA_FORCE_ARCSEARCH 5
-#define SICONOS_IPARAM_LSA_SEARCH_CRITERION 6
-#define SICONOS_IPARAM_GOLDSTEIN_ITERMAX 4
-
-/** non-monotone specific part */
-#define SICONOS_IPARAM_NMS_WATCHDOG_TYPE 7
-#define SICONOS_IPARAM_NMS_PROJECTED_GRADIENT_TYPE 8
-#define SICONOS_IPARAM_NMS_N_MAX 9
-
-/** Some values for dparam index */
-enum SICONOS_DPARAM
-{
-  SICONOS_DPARAM_TOL = 0,
-  SICONOS_DPARAM_RESIDU = 1
-};
-/** line-search */
-#define SICONOS_DPARAM_LSA_ALPHA_MIN 2
-#define SICONOS_DPARAM_GOLDSTEIN_C 3
-#define SICONOS_DPARAM_GOLDSTEIN_ALPHAMAX 4
-
-/** non-monotone specific part */
-#define SICONOS_DPARAM_NMS_DELTA 2
-#define SICONOS_DPARAM_NMS_DELTA_VAR 3
-#define SICONOS_DPARAM_NMS_SIGMA 4
-#define SICONOS_DPARAM_NMS_ALPHA_MIN_WATCHDOG 5
-#define SICONOS_DPARAM_NMS_ALPHA_MIN_PGRAD 6
-#define SICONOS_DPARAM_NMS_MERIT_INCR 7
 
 
 extern const char* const SICONOS_NUMERICS_PROBLEM_LCP_STR;

@@ -119,19 +119,13 @@ void recursive_solver_options_print(SolverOptions* options, int level)
     printf("%sThe solver parameters below have  been set \t options->isSet = %i\n", marge, options->isSet);
     printf("%sId of the solver\t\t\t\t options->solverId = %d \n", marge, options->solverId);
     printf("%sName of the solver\t\t\t\t  %s \n", marge, solver_options_id_to_name(options->solverId));
-    if (options->iparam != NULL)
+    if (1)//options->params != NULL)
     {
-      printf("%sint parameters \t\t\t\t\t options->iparam\n", marge);
-      printf("%ssize of the int parameters\t\t\t options->iSize = %i\n", marge, options->iSize);
-      for (int i = 0; i < options->iSize; ++i)
-        printf("%s\t\t\t\t\t\t options->iparam[%i] = %d\n", marge, i, options->iparam[i]);
-    }
-    if (options->dparam != NULL)
-    {
-      printf("%sdouble parameters \t\t\t\t options->dparam\n", marge);
-      printf("%ssize of the double parameters\t\t\t options->dSize = %i\n", marge, options->dSize);
-      for (int i = 0; i < options->dSize; ++i)
-        printf("%s\t\t\t\t\t\t options->dparam[%i] = %.6le\n", marge, i, options->dparam[i]);
+      /* printf("%sint parameters \t\t\t\t\t options->iparam\n", marge); */
+      /* printf("%ssize of the int parameters\t\t\t options->iSize = %i\n", marge, options->iSize); */
+      /* for (int i = 0; i < options->iSize; ++i) */
+      /*   printf("%s\t\t\t\t\t\t options->iparam[%i] = %d\n", marge, i, options->iparam[i]); */
+      //TODO
     }
   }
   if (options->iWork == NULL)
@@ -141,7 +135,7 @@ void recursive_solver_options_print(SolverOptions* options, int level)
   else
   {
     printf("%sinteger work array have been allocated. \t options->iWork = %p \n", marge, options->iWork);
-    printf("%sinteger work array size \t\t\t options->iSize = %i \n", marge, options->iSize);
+    printf("%sinteger work array size \t\t\t options->iWorkSize = %i \n", marge, options->iWorkSize);
   }
   if (options->dWork == NULL)
   {
@@ -150,7 +144,7 @@ void recursive_solver_options_print(SolverOptions* options, int level)
   else
   {
     printf("%sdouble work array have been allocated. \t options->dWork = %p \n", marge, options->dWork);
-    printf("%sdouble work array size \t\t\t options->dSize = %i \n", marge, options->dSize);
+    printf("%sdouble work array size \t\t\t options->dWorkSize = %i \n", marge, options->dWorkSize);
   }
 
 
@@ -230,12 +224,6 @@ void solver_options_delete(SolverOptions* op)
       free(op->internalSolvers);
     }
     op->internalSolvers = NULL;
-    if (op->iparam)
-      free(op->iparam);
-    op->iparam = NULL;
-    if (op->dparam)
-      free(op->dparam);
-    op->dparam = NULL;
     if (op->iWork)
       free(op->iWork);
     op->iWork = NULL;
@@ -268,15 +256,11 @@ void solver_options_fill(SolverOptions* options, int solverId, int iSize, int dS
   options->numberOfInternalSolvers = 0;
   options->isSet = 1;
   options->filterOn = 1;
-  options->iSize = iSize;
-  options->dSize = dSize;
-  options->iparam = (int *)calloc(iSize, sizeof(int));
-  options->dparam = (double *)calloc(dSize, sizeof(double));
   solver_options_nullify(options);
   /* we set those value, even if they don't make sense. If this is the case,
    * they should be +inf */
-  options->iparam[0] = iter_max;
-  options->dparam[0] = tol;
+  options->params.common.max_iter = iter_max;
+  options->params.common.tolerance = tol;
 
 }
 void solver_options_copy(SolverOptions* options_ori, SolverOptions* options)
@@ -285,21 +269,7 @@ void solver_options_copy(SolverOptions* options_ori, SolverOptions* options)
   options->isSet = options_ori->isSet ;
   options->filterOn = options_ori->filterOn;
 
-  options->iSize = options_ori->iSize;
-  options->dSize = options_ori->dSize;
-  assert(!options->iparam);
-  options->iparam = (int *)calloc(options->iSize, sizeof(int));
-  assert(!options->dparam);
-  options->dparam = (double *)calloc(options->dSize, sizeof(double));
-  for (int i = 0  ; i < options->iSize; i++ )
-  {
-    options->iparam[i] =  options_ori->iparam[i];
-  }
-  for (int i = 0  ; i < options->dSize; i++ )
-  {
-    options->dparam[i] =  options_ori->dparam[i];
-  }
-
+  options->params = options_ori->params;
 
   if (options_ori->iWork)
   {
@@ -383,7 +353,7 @@ void solver_options_set(SolverOptions* options, int solverId)
     iter_max = 1000;
     tol = 1e-8;
     solver_options_fill(options, solverId, iSize, dSize, iter_max, tol);
-    options->dparam[2] = 1.0;
+    options->params.line_search.nm.delta = 1.0;
     break;
   }
   case SICONOS_LCP_LATIN:
@@ -393,7 +363,7 @@ void solver_options_set(SolverOptions* options, int solverId)
     iter_max = 1000;
     tol = 1e-8;
     solver_options_fill(options, solverId, iSize, dSize, iter_max, tol);
-    options->dparam[2] = 0.3;
+    options->params.line_search.nm.delta = 0.3;
     break;
   }
   case SICONOS_LCP_LATIN_W:
@@ -403,8 +373,8 @@ void solver_options_set(SolverOptions* options, int solverId)
     iter_max = 1000;
     tol = 1e-8;
     solver_options_fill(options, solverId, iSize, dSize, iter_max, tol);
-    options->dparam[2] = 0.3;
-    options->dparam[3] = 1.0;
+    options->params.line_search.nm.delta = 0.3;
+    options->params.line_search.nm.delta_var = 1.0;
     break;
   }
   case SICONOS_LCP_ENUM:
@@ -415,7 +385,7 @@ void solver_options_set(SolverOptions* options, int solverId)
     tol = 1e-8;
     solver_options_fill(options, solverId, iSize, dSize, iter_max, tol);
     /*use dgels:*/
-    options->iparam[4] = 0;
+    options->params.line_search.nm.sigma = 0;
     break;
   }
 
@@ -474,7 +444,7 @@ void solver_options_set(SolverOptions* options, int solverId)
     iter_max = 10000;
     tol = 100*DBL_EPSILON;
     solver_options_fill(options, solverId, iSize, dSize, iter_max, tol);
-    options->iparam[SICONOS_IPARAM_PIVOT_RULE] = SICONOS_LCP_PIVOT_LEMKE;
+    options->params.pivot_based.pivot_rule = SICONOS_LCP_PIVOT_LEMKE;
     break;
 
   case SICONOS_LCP_GAMS:

@@ -111,7 +111,7 @@ extern "C"
    * \param dparam vector of double parameters from a SolverOptions struct
    * \return the allocated struct
    */
-  NMS_data* create_NMS_data(unsigned size, int matrix_type, int* iparam, double* dparam);
+  NMS_data* create_NMS_data(unsigned size, int matrix_type, struct SolverOptionsParams *params);
 
   /** free a NMS_data struct
    * \param data the structure to free

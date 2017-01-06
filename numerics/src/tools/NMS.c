@@ -319,7 +319,7 @@ accept_z_N:
 }
 
 
-NMS_data* create_NMS_data(unsigned size, int matrix_type, int* restrict iparam, double* restrict dparam)
+NMS_data* create_NMS_data(unsigned size, int matrix_type, struct SolverOptionsParams *params)
 {
   NMS_data* data = (NMS_data*) malloc(sizeof(NMS_data));
   assert(data);
@@ -339,29 +339,29 @@ NMS_data* create_NMS_data(unsigned size, int matrix_type, int* restrict iparam, 
   data->set = NULL;
   data->path_data = NULL;
 
-  switch (iparam[SICONOS_IPARAM_LSA_NONMONOTONE_LS])
+  switch (params->line_search.nonmonotone_ls)
   {
     case NM_LS_MAX:
     case NM_LS_MEAN:
       data->ref_merit_data = malloc(sizeof(nm_ref_struct));
-      fill_nm_data((nm_ref_struct*)data->ref_merit_data, iparam);
+      fill_nm_data((nm_ref_struct*)data->ref_merit_data, params);
       break;
     default:
-      printf("create_NMS_data :: unknown search type %d\n", iparam[SICONOS_IPARAM_LSA_NONMONOTONE_LS]);
+      printf("create_NMS_data :: unknown search type %d\n", params->line_search.nonmonotone_ls);
       exit(EXIT_FAILURE);
   }
 
   /* set some parameters for the NMS; default values should be set */
-  data->watchdog_search_type = iparam[SICONOS_IPARAM_NMS_WATCHDOG_TYPE];
-  data->projected_gradient_search_type = iparam[SICONOS_IPARAM_NMS_PROJECTED_GRADIENT_TYPE];
-  data->n_max = iparam[SICONOS_IPARAM_NMS_N_MAX];
+  data->watchdog_search_type            = params->line_search.nm.watchdog_type;
+  data->projected_gradient_search_type  = params->line_search.nm.projected_gradient_type;
+  data->n_max                           = params->line_search.nm.n_max;
 
-  data->delta = dparam[SICONOS_DPARAM_NMS_DELTA];
-  data->delta_var = dparam[SICONOS_DPARAM_NMS_DELTA_VAR];
-  data->sigma = dparam[SICONOS_DPARAM_NMS_SIGMA];
-  data->alpha_min_watchdog = dparam[SICONOS_DPARAM_NMS_ALPHA_MIN_WATCHDOG];
-  data->alpha_min_pgrad = dparam[SICONOS_DPARAM_NMS_ALPHA_MIN_PGRAD];
-  data->merit_incr = dparam[SICONOS_DPARAM_NMS_MERIT_INCR];
+  data->delta               = params->line_search.nm.delta;
+  data->delta_var           = params->line_search.nm.delta_var;
+  data->sigma               = params->line_search.nm.sigma;
+  data->alpha_min_watchdog  = params->line_search.nm.alpha_min_watchdog;
+  data->alpha_min_pgrad     = params->line_search.nm.alpha_min_pgrad;
+  data->merit_incr          = params->line_search.nm.merit_incr;
 
   /* init some values */
   data->delta_checkpoint = data->delta;

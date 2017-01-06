@@ -122,7 +122,7 @@ extern "C"
    * \param nm_ref_data the structure to fill
    * \param iparam the set of parameter from the SolverOption struct
    */
-  void fill_nm_data(nm_ref_struct* nm_ref_data, int* iparam);
+  void fill_nm_data(nm_ref_struct* nm_ref_data, struct SolverOptionsParams *params);
 
   /** Reset the storage for the non-monotone search
    * \param nm_ref_data the structure
