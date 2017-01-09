@@ -52,16 +52,18 @@ struct SiconosSolverCommonParams
   double residu;
 };
 
-struct SiconosSolverPivotBasedParams
-{
-  struct SiconosSolverCommonParams common;
-  int pivot_rule;
-};
-
 struct SiconosSolverPathSearchParams
 {
   struct SiconosSolverCommonParams common;
   int stack_size;
+  double result;
+};
+
+struct SiconosSolverPivotBasedParams
+{
+  struct SiconosSolverCommonParams common;
+  struct SiconosSolverPathSearchParams path;
+  int pivot_rule;
 };
 
 struct SiconosGoldsteinParams
@@ -92,6 +94,7 @@ struct SiconosLineSearchParams
   int force_arcsearch;
   int criterion;
   double alpha_min;
+  struct SiconosSolverPathSearchParams path;
   struct SiconosNonMonotoneParams nm;
   struct SiconosGoldsteinParams goldstein;
 };
@@ -101,7 +104,7 @@ struct SolverOptionsParams
   union {
     struct SiconosSolverCommonParams common;
     struct SiconosSolverPivotBasedParams pivot_based;
-    struct SiconosSolverPathSearchParams path_search;
+    //struct SiconosSolverPathSearchParams path_search;
     struct SiconosLineSearchParams line_search;
   };
 };

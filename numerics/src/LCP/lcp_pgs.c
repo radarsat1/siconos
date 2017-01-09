@@ -47,12 +47,12 @@ void lcp_pgs(LinearComplementarityProblem* problem, double *z, double *w, int *i
   double qs, zi;
 
   /* Solver parameters */
-  int itermax = options->iparam[0];
-  double tol = options->dparam[0];
+  int itermax = options->params.common.max_iter;
+  double tol = options->params.common.tolerance;
   /* Initialize output */
 
-  options->iparam[1] = 0;
-  options->dparam[1] = 0.0;
+  options->params.common.iter_done = 0;
+  options->params.common.residu = 0.0;
 
   if (verbose > 0)
   {
@@ -114,8 +114,8 @@ void lcp_pgs(LinearComplementarityProblem* problem, double *z, double *w, int *i
     }
   }
 
-  options->iparam[1] = iter;
-  options->dparam[1] = err;
+  options->params.common.iter_done = iter;
+  options->params.common.residu = err;
 
   if (err > tol)
   {
@@ -149,15 +149,14 @@ int linearComplementarity_pgs_setDefaultSolverOptions(SolverOptions* options)
   options->internalSolvers = NULL;
   options->isSet = 1;
   options->filterOn = 1;
-  options->iSize = 5;
-  options->dSize = 5;
-  options->iparam = (int *)calloc(options->iSize, sizeof(int));
-  options->dparam = (double *)calloc(options->dSize, sizeof(double));
   options->dWork = NULL;
   solver_options_nullify(options);
-  options->iparam[0] = 1000;
-  options->dparam[0] = 1e-6;
-  options->dparam[1] = 1.0;
+
+  memset(&options->params, 0, sizeof(options->params));
+
+  options->params.common.max_iter = 1000;
+  options->params.common.tolerance = 1e-6;
+  options->params.common.residu = 1.0;
 
 
   return 0;

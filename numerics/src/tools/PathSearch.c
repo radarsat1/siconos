@@ -34,21 +34,14 @@ void pathsearch_default_SolverOption(SolverOptions* options)
 {
   options->params.line_search.nonmonotone_ls = NM_LS_MEAN;
   options->params.line_search.nonmonotone_ls_m = 10;
-  options->params.path_search.nonmonotone_ls_m = 10;
-TODO is this ok, check how options are laid out
-  options->iparam[SICONOS_IPARAM_LSA_NONMONOTONE_LS] = NM_LS_MEAN;
-  options->iparam[SICONOS_IPARAM_LSA_NONMONOTONE_LS_M] = 10;
-  options->iparam[SICONOS_IPARAM_PATHSEARCH_STACKSIZE] = 5;
-  options->iparam[SICONOS_IPARAM_NMS_WATCHDOG_TYPE] = LINESEARCH;
-  options->iparam[SICONOS_IPARAM_NMS_PROJECTED_GRADIENT_TYPE] = ARCSEARCH;
-  options->iparam[SICONOS_IPARAM_NMS_N_MAX] = 10;
-
-  options->dparam[SICONOS_DPARAM_NMS_DELTA] = 20;
-  options->dparam[SICONOS_DPARAM_NMS_DELTA_VAR] = .8;
-  options->dparam[SICONOS_DPARAM_NMS_SIGMA] = .01;
-  options->dparam[SICONOS_DPARAM_NMS_ALPHA_MIN_WATCHDOG] = 1e-12;
-  options->dparam[SICONOS_DPARAM_NMS_ALPHA_MIN_PGRAD] = 1e-12;
-  options->dparam[SICONOS_DPARAM_NMS_MERIT_INCR] = 1.1; /* XXX 1.1 ?*/
+  options->params.line_search.path.stack_size = 5;
+  options->params.line_search.nm.watchdog_type = LINESEARCH;
+  options->params.line_search.nm.projected_gradient_type = ARCSEARCH;
+  options->params.line_search.nm.n_max = 10;
+  options->params.line_search.nm.delta = 20;
+  options->params.line_search.nm.delta_var = 0.8;
+  options->params.line_search.nm.sigma = 0.01;
+  options->params.line_search.nm.alpha_min_watchdog = 1e-12;
+  options->params.line_search.nm.alpha_min_pgrad = 1e-12;
+  options->params.line_search.nm.merit_incr = 1.1;
 }
-
-

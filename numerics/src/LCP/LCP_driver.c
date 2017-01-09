@@ -89,8 +89,8 @@ int lcp_driver_SparseBlockMatrix(LinearComplementarityProblem* problem, double *
 	  w[j] = q[j];
 	}
       info = 0;
-      options->iparam[1] = 0;   /* Number of iterations done */
-      options->dparam[1] = 0.0; /* Error */
+      options->params.common.iter_done = 0;   /* Number of iterations done */
+      options->params.common.residu = 0.0; /* Error */
       if (verbose > 0)
 	printf("LCP_driver_SparseBlockMatrix: found trivial solution for the LCP (positive vector q => z = 0 and w = q). \n");
       DEBUG_END("lcp_driver_SparseBlockMatrix(...)\n");
@@ -119,7 +119,9 @@ int lcp_driver_SparseBlockMatrix(LinearComplementarityProblem* problem, double *
    *  3 - Computes w = Mz + q and checks validity
    *************************************************/
   if (options->filterOn > 0)
-    info = lcp_compute_error(problem, z, w, options->dparam[0], &(options->dparam[1]));
+    info = lcp_compute_error(problem, z, w,
+                             options->params.common.tolerance,
+                             &options->params.common.residu);
   DEBUG_END("lcp_driver_SparseBlockMatrix(...)\n");
   return info;
 
@@ -162,7 +164,7 @@ int lcp_driver_DenseMatrix(LinearComplementarityProblem* problem, double *z , do
 	    w[j] = q[j];
 	  }
         info = 0;
-        options->dparam[1] = 0.0; /* Error */
+        options->params.common.residu = 0.0; /* Error */
         if (verbose > 0)
           printf("LCP_driver_DenseMatrix: found trivial solution for the LCP (positive vector q => z = 0 and w = q). \n");
         DEBUG_END("lcp_driver_DenseMatrix(...)\n")
@@ -329,7 +331,9 @@ int lcp_driver_DenseMatrix(LinearComplementarityProblem* problem, double *z , do
    *************************************************/
   if (options->filterOn > 0)
     {
-      int info_ = lcp_compute_error(problem, z, w, options->dparam[0], &(options->dparam[1]));
+      int info_ = lcp_compute_error(problem, z, w,
+                                    options->params.common.tolerance,
+                                    &options->params.common.residu);
       if (info <= 0) /* info was not set or the solver was happy */
 	info = info_;
     }

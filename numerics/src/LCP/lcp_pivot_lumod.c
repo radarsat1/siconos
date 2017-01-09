@@ -104,9 +104,9 @@ void lcp_pivot_lumod_covering_vector(LinearComplementarityProblem* problem, doub
   unsigned has_sol = 0;
   unsigned nb_iter = 0;
   unsigned leaving = 0;
-  unsigned itermax = options->iparam[0];
-  unsigned preAlloc = options->iparam[SICONOS_IPARAM_PREALLOC];
-  unsigned pivot_selection_rule = options->iparam[SICONOS_IPARAM_PIVOT_RULE];
+  unsigned itermax = options->params.common.max_iter;
+  unsigned preAlloc = options->params.common.prealloc;
+  unsigned pivot_selection_rule = options->params.pivot_based.pivot_rule;
 
   assert(itermax > 0 && "lcp_pivot_lumod_covering_vector itermax == 0, the algorithm will not run");
   double pivot;
@@ -149,7 +149,7 @@ void lcp_pivot_lumod_covering_vector(LinearComplementarityProblem* problem, doub
   *info = 0;
 
   /*output*/
-  options->iparam[1] = 0;
+  options->params.common.iter_done = 0;
 
   /* Allocation */
   SN_lumod_dense_data* lumod_data = SN_lumod_dense_allocate(dim, maxmod);
@@ -452,7 +452,7 @@ void lcp_pivot_lumod_covering_vector(LinearComplementarityProblem* problem, doub
         DEBUG_PRINT("t variable leaving !\n");
         *info = LCP_PATHSEARCH_LEAVING_T;
         bck_drive = drive < dim + 1 ? drive - 1 : drive - dim - 2;
-        options->dparam[2] = mat[t_indx];
+        options->params.path_search.result = mat[t_indx];
         goto exit_lcp_pivot;
       }
     }
@@ -574,7 +574,7 @@ exit_lcp_pivot:
   DEBUG_EXPR_WE(for (unsigned int i = 0; i < dim; ++i)
       { DEBUG_PRINTF("%e %e\n", u[i], s[i]) });
 
-  options->iparam[1] = nb_iter;
+  options->params.common.iter_done = nb_iter;
 
   /* update info */
   switch (pivot_selection_rule)
@@ -582,7 +582,9 @@ exit_lcp_pivot:
     /* Principal Pivoting Methods  */
     case SICONOS_LCP_PIVOT_BARD:
     case SICONOS_LCP_PIVOT_LEAST_INDEX:
-      *info = lcp_compute_error(problem, u, s, options->dparam[0], &tmp);
+      *info = lcp_compute_error(problem, u, s,
+                                options->params.common.tolerance,
+                                &tmp);
       break;
     case SICONOS_LCP_PIVOT_PATHSEARCH:
       break; /* info should already be set */

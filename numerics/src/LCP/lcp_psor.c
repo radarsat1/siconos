@@ -46,17 +46,17 @@ void lcp_psor(LinearComplementarityProblem* problem, double *z, double *w, int *
 
   double qs, err;
   double *ww, *diag;
-  int itermax = options->iparam[0];
-  double tol = options->dparam[0];
-  double omega = options->dparam[2]; // Not yet used
+  int itermax = options->params.common.max_iter;
+  double tol = options->params.common.tolerance;
+  double omega = 0;//options->params.; // Not yet used
   printf("Warning : omega %f is not used !!!!!\n", omega);
 
   incxn = n;
 
   /* Initialize output */
 
-  options->iparam[1] = 0;
-  options->dparam[1] = 0.0;
+  options->params.common.iter_done = 0;
+  options->params.common.residu = 0.0;
 
   /* Allocation */
 
@@ -159,8 +159,8 @@ void lcp_psor(LinearComplementarityProblem* problem, double *z, double *w, int *
     /* **** ********************* **** */
   }
 
-  options->iparam[1] = iter;
-  options->dparam[1] = err;
+  options->params.common.iter_done = iter;
+  options->params.common.residu = err;
 
   if (err > tol)
   {
@@ -198,21 +198,14 @@ int linearComplementarity_psor_setDefaultSolverOptions(SolverOptions* options)
   options->numberOfInternalSolvers = 0;
   options->isSet = 1;
   options->filterOn = 1;
-  options->iSize = 5;
-  options->dSize = 5;
-  options->iparam = (int *)malloc(options->iSize * sizeof(int));
-  options->dparam = (double *)malloc(options->dSize * sizeof(double));
   options->dWork = NULL;
   solver_options_nullify(options);
-  for (i = 0; i < 5; i++)
-  {
-    options->iparam[i] = 0;
-    options->dparam[i] = 0.0;
-  }
-  options->iparam[0] = 1000;
-  options->dparam[0] = 1e-6;
-  options->dparam[2] = 0.1;
 
+  memset(&options->params, 0, sizeof(options->params));
+
+  options->params.common.max_iter = 1000;
+  options->params.common.tolerance = 1e-6;
+  //options->dparam[2] = 0.1;  // omega TODO
 
   return 0;
 }

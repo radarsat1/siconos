@@ -254,7 +254,7 @@ int avi_caoferris_stage3(LinearComplementarityProblem* problem, double* restrict
   unsigned int has_sol = 0;
   unsigned int nb_iter = 0;
   unsigned int leaving;
-  unsigned int itermax = options->iparam[0];
+  unsigned int itermax = options->params.common.max_iter;
   unsigned aux_indx = 0;
 
   double pivot, pivot_inv;
@@ -266,7 +266,7 @@ int avi_caoferris_stage3(LinearComplementarityProblem* problem, double* restrict
 
   /*output*/
 
-  options->iparam[1] = 0;
+  options->params.common.iter_done = 0;
 
   /* Allocation */
   basis = (unsigned int *)malloc(dim * sizeof(unsigned int));
@@ -496,7 +496,7 @@ exit_caoferris:
   DEBUG_EXPR_WE(for (unsigned int i = 0; i < dim; ++i)
       { DEBUG_PRINTF("%e %e\n", u[i], s[i]) });
 
-  options->iparam[1] = nb_iter;
+  options->params.common.residu = nb_iter;
 
   if (has_sol) info = 0;
   else info = 1;

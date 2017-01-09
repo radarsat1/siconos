@@ -41,13 +41,13 @@ void lcp_cpg(LinearComplementarityProblem* problem, double *z, double *w, int *i
 
   int incx, incy;
   int i, iter;
-  int itermax = options->iparam[0];
+  int itermax = options->params.common.max_iter;
 
 
   double err, a1, b1 , qs;
 
   double alpha, beta, rp, pMp;
-  double tol = options->dparam[0];
+  double tol = options->params.common.tolerance;
 
   int *status;
   double *zz , *pp , *rr, *ww, *Mp;
@@ -57,8 +57,8 @@ void lcp_cpg(LinearComplementarityProblem* problem, double *z, double *w, int *i
 
   /*output*/
 
-  options->iparam[1] = 0;
-  options->dparam[1] = 0.0;
+  options->params.common.iter_done = 0;
+  options->params.common.residu = 0.0;
 
   qs = cblas_dnrm2(n , q , incx);
 
@@ -148,8 +148,8 @@ void lcp_cpg(LinearComplementarityProblem* problem, double *z, double *w, int *i
       free(zz);
       free(status);
 
-      options->iparam[1] = iter;
-      options->dparam[1] = err;
+      options->params.common.iter_done = iter;
+      options->params.common.residu = err;
       *info = 3;
       return;
     }
@@ -239,8 +239,8 @@ void lcp_cpg(LinearComplementarityProblem* problem, double *z, double *w, int *i
 
   }
 
-  options->iparam[1] = iter;
-  options->dparam[1] = err;
+  options->params.common.iter_done = iter;
+  options->params.common.residu = err;
 
   cblas_dcopy(n, rr, incx, w, incy);
 
@@ -287,19 +287,13 @@ int linearComplementarity_cpg_setDefaultSolverOptions(SolverOptions* options)
   options->numberOfInternalSolvers = 0;
   options->isSet = 1;
   options->filterOn = 1;
-  options->iSize = 5;
-  options->dSize = 5;
-  options->iparam = (int *)malloc(options->iSize * sizeof(int));
-  options->dparam = (double *)malloc(options->dSize * sizeof(double));
   options->dWork = NULL;
   solver_options_nullify(options);
-  for (i = 0; i < 5; i++)
-  {
-    options->iparam[i] = 0;
-    options->dparam[i] = 0.0;
-  }
-  options->iparam[0] = 1000;
-  options->dparam[0] = 1e-6;
+
+  memset(&options->params, 0, sizeof(options->params));
+
+  options->params.common.max_iter = 1000;
+  options->params.common.tolerance = 1e-6;
 
 
   return 0;

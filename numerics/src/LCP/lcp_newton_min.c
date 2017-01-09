@@ -54,8 +54,8 @@ void lcp_newton_min(LinearComplementarityProblem* problem, double *z, double *w,
   double *JacH, *H, *A;
 
   double *rho;
-  int itermax = options->iparam[0];
-  double tol = options->dparam[0];
+  int itermax = options->params.common.max_iter;
+  double tol = options->params.common.tolerance;
 
   incx = 1;
   incy = 1;
@@ -63,8 +63,8 @@ void lcp_newton_min(LinearComplementarityProblem* problem, double *z, double *w,
 
   /*output*/
 
-  options->iparam[1] = 0;
-  options->dparam[1] = 0.0;
+  options->params.common.iter_done = 0;
+  options->params.common.residu = 0.0;
 
   for (i = 0; i < n; i++)
   {
@@ -163,8 +163,8 @@ void lcp_newton_min(LinearComplementarityProblem* problem, double *z, double *w,
       {
         printf("Problem in DGESV\n");
       }
-      options->iparam[1] = iter;
-      options->dparam[1] = err;
+      options->params.common.iter_done = iter;
+      options->params.common.residu = err;
 
       free(H);
       free(A);
@@ -201,8 +201,8 @@ void lcp_newton_min(LinearComplementarityProblem* problem, double *z, double *w,
 
   }
 
-  options->iparam[1] = iter;
-  options->dparam[1] = err;
+  options->params.common.iter_done = iter;
+  options->params.common.residu = err;
 
   if (err > tol)
   {
@@ -235,26 +235,17 @@ int linearComplementarity_newton_min_setDefaultSolverOptions(SolverOptions* opti
     printf("Set the Default SolverOptions for the NewtonMin Solver\n");
   }
 
-
-
   options->solverId = SICONOS_LCP_NEWTONMIN;
   options->numberOfInternalSolvers = 0;
   options->isSet = 1;
   options->filterOn = 1;
-  options->iSize = 5;
-  options->dSize = 5;
-  options->iparam = (int *)malloc(options->iSize * sizeof(int));
-  options->dparam = (double *)malloc(options->dSize * sizeof(double));
   options->dWork = NULL;
   solver_options_nullify(options);
-  for (i = 0; i < 5; i++)
-  {
-    options->iparam[i] = 0;
-    options->dparam[i] = 0.0;
-  }
-  options->iparam[0] = 1000;
-  options->dparam[0] = 1e-6;
 
+  memset(&options->params, 0, sizeof(options->params));
+
+  options->params.common.max_iter = 1000;
+  options->params.common.tolerance = 1e-6;
 
   return 0;
 }

@@ -50,7 +50,7 @@ void lcp_nsqp(LinearComplementarityProblem* problem, double *z, double *w, int *
   int *iwar;
   double *war;
 
-  double tol = options->dparam[0];
+  double tol = options->params.common.tolerance;
 
   /* / m :        total number of constraints.*/
   m = n;
@@ -158,25 +158,16 @@ int linearComplementarity_nsqp_setDefaultSolverOptions(SolverOptions* options)
     printf("Set the Default SolverOptions for the NSQP Solver\n");
   }
 
-
-
   options->solverId = SICONOS_LCP_NSQP;
   options->numberOfInternalSolvers = 0;
   options->isSet = 1;
   options->filterOn = 1;
-  options->iSize = 5;
-  options->dSize = 5;
-  options->iparam = (int *)malloc(options->iSize * sizeof(int));
-  options->dparam = (double *)malloc(options->dSize * sizeof(double));
   options->dWork = NULL;
   solver_options_nullify(options);
-  for (i = 0; i < 5; i++)
-  {
-    options->iparam[i] = 0;
-    options->dparam[i] = 0.0;
-  }
-  options->dparam[0] = 1e-6;
 
+  memset(&options->params, 0, sizeof(options->params));
+
+  options->params.common.tolerance = 1e-6;
 
   return 0;
 }
