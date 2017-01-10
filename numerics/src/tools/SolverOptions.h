@@ -70,7 +70,7 @@ struct SiconosSolverCommonParams
   // parallelizing, would be better to separate into a separate struct
   // also passed into the solvers independently.
   int iter_done;
-  double residu;
+  double residue;
 
   int extra_iter_done;// only used in soclcp_VI_ExtraGradient.c
 
