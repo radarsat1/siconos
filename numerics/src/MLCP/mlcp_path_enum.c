@@ -117,7 +117,7 @@ void mlcp_path_enum(MixedLinearComplementarityProblem* problem, double *z, doubl
   /*First, try direct solver*/
   //  options->dWork = sdWorkDirect;
   //  options->iWork = siWorkDirect;
-  if (options->iparam[8] == 761727)
+  if (options->params.common.verbose)
   {
     mixedLinearComplementarity_display(problem);
   }

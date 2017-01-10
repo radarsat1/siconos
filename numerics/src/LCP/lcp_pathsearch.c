@@ -81,8 +81,8 @@ void lcp_pathsearch(LinearComplementarityProblem* problem, double *z, double *w,
 
   /* end update M, q and r */
 
-  options->params.path_search.stack_size = 1;
   options->params.pivot_based.pivot_rule = SICONOS_LCP_PIVOT_PATHSEARCH;
+  options->params.pivot_based.path_search.stack_size = 1;
 
   DEBUG_PRINT("x_plus r q\n");
   DEBUG_EXPR_WE(for (unsigned i = 0; i < n; ++i)

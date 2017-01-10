@@ -33,8 +33,8 @@ int mixedLinearComplementarity_rpsor_setDefaultSolverOptions(MixedLinearCompleme
 {
 
   mixedLinearComplementarity_default_setDefaultSolverOptions(problem, pSolver);
-  pSolver->dparam[2] = 0.5; /*rho*/
-  pSolver->dparam[3] = 2; /*ohmega*/
+  pSolver->params.common.rho = 0.5;
+  pSolver->params.common.omega = 2;
   return 0;
 }
 
@@ -62,17 +62,17 @@ void mlcp_rpsor(MixedLinearComplementarityProblem* problem, double *z, double *w
 
   /* Recup input */
 
-  itermax = options->iparam[0];
-  tol   = options->dparam[0];
-  rho   = options->dparam[2];
-  omega = options->dparam[3];
+  itermax = options->params.common.max_iter;
+  tol     = options->params.common.tolerance;
+  rho     = options->params.common.rho;
+  omega   = options->params.common.omega;
   printf("omega %f\n", omega);
   printf("rho %f\n", rho);
 
   /* Initialize output */
 
-  options->iparam[1] = 0;
-  options->dparam[1] = 0.0;
+  options->params.common.iter_done = 0;
+  options->params.common.residu = 0.0;
 
   /* Allocation */
 
@@ -186,8 +186,8 @@ void mlcp_rpsor(MixedLinearComplementarityProblem* problem, double *z, double *w
 
   }
 
-  options->iparam[1] = iter;
-  options->dparam[1] = err;
+  options->params.common.iter_done = iter;
+  options->params.common.residu = err;
 
   if (err > tol)
   {

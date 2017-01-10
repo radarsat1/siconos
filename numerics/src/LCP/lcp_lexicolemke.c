@@ -53,7 +53,7 @@ void lcp_lexicolemke(LinearComplementarityProblem* problem, double *zlem , doubl
   int ic, jc;
   int ITER;
   int nobasis;
-  int itermax = options->iparam[0];
+  int itermax = options->params.common.max_iter;
 
   i=0;
   int n = problem->size;
@@ -74,8 +74,8 @@ void lcp_lexicolemke(LinearComplementarityProblem* problem, double *zlem , doubl
       wlem[j] = q[j];
     }
     *info = 0;
-    options->iparam[1] = 0;   /* Number of iterations done */
-    options->dparam[1] = 0.0; /* Error */
+    options->params.common.iter_done = 0;   /* Number of iterations done */
+    options->params.common.residu = 0.0;    /* Error */
     if (verbose > 0)
       printf("lcp_lexicolemke: found trivial solution for the LCP (positive vector q => z = 0 and w = q). \n");
     return ;
@@ -89,7 +89,7 @@ void lcp_lexicolemke(LinearComplementarityProblem* problem, double *zlem , doubl
 
   /*output*/
 
-  options->iparam[1] = 0;
+  options->params.common.iter_done = 0;
 
   /* Allocation */
 
@@ -119,15 +119,15 @@ void lcp_lexicolemke(LinearComplementarityProblem* problem, double *zlem , doubl
 
   double lexico_tol_diff;
   double lexico_tol_elt;
-  if (options->iparam[2] == 0)
+  if (options->params.lexico_lemke.have_tolerance == 0)
   {
     lexico_tol_diff = max_elt_M*DBL_EPSILON;
     lexico_tol_elt = max_elt_M*DBL_EPSILON;
   }
   else
   {
-    lexico_tol_diff = options->dparam[2];
-    lexico_tol_elt = options->dparam[3];
+    lexico_tol_diff = options->params.lexico_lemke.tol_diff;
+    lexico_tol_elt = options->params.lexico_lemke.tol_elt;
   }
   assert(problem->q);
 
@@ -444,7 +444,7 @@ void lcp_lexicolemke(LinearComplementarityProblem* problem, double *zlem , doubl
     }
   }
 
-  options->iparam[1] = ITER;
+  options->params.common.iter_done = ITER;
 
   if (Ifound) *info = 0;
   else *info = 1;
@@ -468,13 +468,12 @@ int linearComplementarity_lexicolemke_setDefaultSolverOptions(SolverOptions* opt
   options->numberOfInternalSolvers = 0;
   options->isSet = 1;
   options->filterOn = 1;
-  options->iSize = 5;
-  options->dSize = 5;
-  options->iparam = (int *)calloc(options->iSize, sizeof(int));
-  options->dparam = (double *)calloc(options->dSize, sizeof(double));
   options->dWork = NULL;
   solver_options_nullify(options);
-  options->dparam[0] = 1e-6;
-  options->iparam[0] = 10000;
+
+  memset(&options->params, 0, sizeof(options->params));
+
+  options->params.common.tolerance = 1e-6;
+  options->params.common.max_iter = 10000;
   return 0;
 }

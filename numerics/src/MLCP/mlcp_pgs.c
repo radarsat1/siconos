@@ -34,7 +34,7 @@ int mixedLinearComplementarity_pgs_setDefaultSolverOptions(MixedLinearComplement
 {
 
   mixedLinearComplementarity_default_setDefaultSolverOptions(problem, pSolver);
-  pSolver->iparam[2] = 0; //implicit
+  pSolver->params.common.pgs_explicit = 0; //implicit
   return 0;
 }
 void mlcp_pgs(MixedLinearComplementarityProblem* problem, double *z, double *w, int *info, SolverOptions* options)
@@ -73,14 +73,14 @@ void mlcp_pgs(MixedLinearComplementarityProblem* problem, double *z, double *w, 
   incy = 1;
   /* Recup input */
 
-  itermax = options->iparam[0];
-  pgsExplicit = options->iparam[2];
-  tol   = options->dparam[0];
+  itermax     = options->params.common.max_iter;
+  pgsExplicit = options->params.common.pgs_explicit;
+  tol         = options->params.common.tolerance;
 
   /* Initialize output */
 
-  options->iparam[1] = 0;
-  options->dparam[1] = 0.0;
+  options->params.common.iter_done = 0;
+  options->params.common.residu = 0.0;
 
   /* Allocation */
 
@@ -226,8 +226,8 @@ void mlcp_pgs(MixedLinearComplementarityProblem* problem, double *z, double *w, 
 
   }
 
-  options->iparam[1] = iter;
-  options->dparam[1] = err;
+  options->params.common.iter_done = iter;
+  options->params.common.residu    = err;
 
   if (err > tol)
   {

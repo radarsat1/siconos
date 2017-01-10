@@ -48,7 +48,7 @@ void lcp_psor(LinearComplementarityProblem* problem, double *z, double *w, int *
   double *ww, *diag;
   int itermax = options->params.common.max_iter;
   double tol = options->params.common.tolerance;
-  double omega = 0;//options->params.; // Not yet used
+  double omega = options->params.common.omega; // Not yet used
   printf("Warning : omega %f is not used !!!!!\n", omega);
 
   incxn = n;

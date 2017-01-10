@@ -452,7 +452,7 @@ void lcp_pivot_lumod_covering_vector(LinearComplementarityProblem* problem, doub
         DEBUG_PRINT("t variable leaving !\n");
         *info = LCP_PATHSEARCH_LEAVING_T;
         bck_drive = drive < dim + 1 ? drive - 1 : drive - dim - 2;
-        options->params.path_search.result = mat[t_indx];
+        options->params.pivot_based.path_search.result = mat[t_indx];
         goto exit_lcp_pivot;
       }
     }

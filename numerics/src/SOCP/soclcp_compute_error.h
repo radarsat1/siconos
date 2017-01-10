@@ -40,7 +40,7 @@ extern "C"
     \param[in,out] error value
     \return 0 if ok
  */
-int soclcp_compute_error(SecondOrderConeLinearComplementarityProblem* problem, double *z , double *w, double tolerance, SolverOptions * options, double * error);
+int soclcp_compute_error(SecondOrderConeLinearComplementarityProblem* problem, double *z , double *w, SolverOptions * options, double * error);
 
 /** Error computation for one SOCLCP problem
     \param z vector
@@ -62,7 +62,7 @@ int soclcp_compute_error(SecondOrderConeLinearComplementarityProblem* problem, d
     \param[in,out] error value
     \return 0 if ok
  */
-int soclcp_compute_error_v(SecondOrderConeLinearComplementarityProblem* problem, double *z , double *w, double tolerance, SolverOptions * options, double * error);
+int soclcp_compute_error_v(SecondOrderConeLinearComplementarityProblem* problem, double *z , double *w, SolverOptions * options, double * error);
 
 
 

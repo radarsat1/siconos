@@ -43,26 +43,58 @@ typedef struct
 
 /* Solver Options Parameters */
 
+typedef enum {
+  SICONOS_SOLVELS_DGESV = 0,
+  SICONOS_SOLVELS_DGELS = 1,
+} SICONOS_SOLVELS_TYPE;
+
 struct SiconosSolverCommonParams
 {
   int max_iter;
-  int iter_done;
   int prealloc;
   double tolerance;
+  double rho;   // Too general, only used in lcp_rpgs.c
+  double omega; // Too general, mentioned but unused in lcp_rpgs.c,
+                // lcp_nsgs_SBM.c, and mlcp_psor.c; actually used in
+                // lcp_latin_w.c
+  int k_latin;  // Too general, only used in lcp_latin.c and lcp_latin_w.c
+  SICONOS_SOLVELS_TYPE solvels;  // Too general, only used in
+                                 // lcp_enum.c and mlcp_enum.c, also
+                                 // set in MixedLinearComplementarity_DefaultSolverOptions.c
+  int multiple_solutions; // Only used in lcp_enum.c
+  int pgs_explicit; // Only used in mlcp_pgs.c
+
+  int verbose; // not sure if it's the best place for this
+
+  // Outputs -- these are the only reason to copy this struct when
+  // parallelizing, would be better to separate into a separate struct
+  // also passed into the solvers independently.
+  int iter_done;
   double residu;
+
+  int extra_iter_done;// only used in soclcp_VI_ExtraGradient.c
+
+  // Work variables, similar to outputs but read/written by some
+  // algorithms within or between calls
+  int iter_sum;      // only used in lcp_nsgs_SBM.c and mlcp_pgs_SBM.c
+  double residu_sum; // only used in lcp_nsgs_SBM.c and mlcp_pgs_SBM.c
+  int current_enum;  // only used in lcp_enum.c
+  int n_solutions;  // only used in lcp_enum.c
 };
 
 struct SiconosSolverPathSearchParams
 {
   struct SiconosSolverCommonParams common;
   int stack_size;
+
+  // This contains a return value from lcp_pivot_lumod.c and lcp_pivot.c
   double result;
 };
 
 struct SiconosSolverPivotBasedParams
 {
   struct SiconosSolverCommonParams common;
-  struct SiconosSolverPathSearchParams path;
+  struct SiconosSolverPathSearchParams path_search;
   int pivot_rule;
 };
 
@@ -99,13 +131,44 @@ struct SiconosLineSearchParams
   struct SiconosGoldsteinParams goldstein;
 };
 
+struct SiconosLexicoLemkeParams
+{
+  struct SiconosSolverCommonParams common;
+  int have_tolerance;
+  double tol_diff;
+  double tol_elt;
+};
+
+struct SiconosMLCPParams
+{
+  struct SiconosSolverCommonParams common;
+  int max_configs;
+  double tolerance_neg;
+  double tolerance_pos;
+
+  // Outputs and work variables
+  int n_failed;
+  int changed;
+};
+
+struct SiconosVIParams
+{
+  struct SiconosSolverCommonParams common;
+  // Line search options
+  double tau;
+  double tau_inv;
+  double L;
+  double L_min;
+};
+
 struct SolverOptionsParams
 {
   union {
     struct SiconosSolverCommonParams common;
     struct SiconosSolverPivotBasedParams pivot_based;
-    //struct SiconosSolverPathSearchParams path_search;
     struct SiconosLineSearchParams line_search;
+    struct SiconosLexicoLemkeParams lexico_lemke;
+    struct SiconosMLCPParams mlcp;
   };
 };
 

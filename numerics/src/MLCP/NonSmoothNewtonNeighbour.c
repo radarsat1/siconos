@@ -437,14 +437,14 @@ double * nonSmoothNewtonNeighInitMemory(int n, double * dWork, int * iWork)
 }
 
 
-int nonSmoothNewtonNeigh(int n, double* z, NewtonFunctionPtr* phi, NewtonFunctionPtr* jacobianPhi, int* iparam, double* dparam)
+int nonSmoothNewtonNeigh(int n, double* z, NewtonFunctionPtr* phi, NewtonFunctionPtr* jacobianPhi, SolverOptions *options)
 {
 
 
-  int itermax = iparam[0]; // maximum number of iterations allowed
+  int itermax = options->params.common.max_iter; // maximum number of iterations allowed
   int iterMaxWithSameZ = itermax / 4;
   int niter = 0; // current iteration number
-  double tolerance = dparam[0];
+  double tolerance = options->params.common.tolerance;
   /*   double coef; */
   sFphi = phi;
   sFjacobianPhi = jacobianPhi;
@@ -764,25 +764,25 @@ int nonSmoothNewtonNeigh(int n, double* z, NewtonFunctionPtr* phi, NewtonFunctio
   }
 
   /* Total number of iterations */
-  iparam[1] = niter;
+  options->params.common.iter_done = niter;
   /* Final error */
-  dparam[1] = terminationCriterion;
+  options->params.common.residu = terminationCriterion;
 
   /** Free memory*/
 
   if (verbose > 0)
   {
-    if (dparam[1] > tolerance)
+    if (options->params.common.residu > tolerance)
       printf("Non Smooth Newton warning: no convergence after %i iterations\n" , niter);
 
     else
       printf("Non Smooth Newton: convergence after %i iterations\n" , niter);
-    printf(" The residue is : %e \n", dparam[1]);
+    printf(" The residue is : %e \n", options->params.common.residu);
   }
 
   /*  free(oldz);*/
 
-  if (dparam[1] > tolerance)
+  if (options->params.common.residu > tolerance)
     return 1;
   else return 0;
 }

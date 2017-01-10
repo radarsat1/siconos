@@ -28,28 +28,23 @@
 void  mixedLinearComplementarity_default_setDefaultSolverOptions(MixedLinearComplementarityProblem* problem, SolverOptions* pOptions)
 {
   pOptions->isSet = 0;
-  pOptions->iSize = 10;
-  pOptions->iparam = 0;
-  pOptions->dSize = 10;
-  pOptions->dparam = 0;
   pOptions->filterOn = 0;
   pOptions->dWork = 0;
   pOptions->iWork = 0;
-  pOptions->iparam = (int*)malloc(10 * sizeof(int));
-  pOptions->dparam = (double*)malloc(10 * sizeof(double));
   pOptions->numberOfInternalSolvers = 0;
   solver_options_nullify(pOptions);
 
+  memset(&pOptions->params, 0, sizeof(pOptions->params));
 
-  pOptions->dparam[0] = 10 - 7;
+  pOptions->params.common.tolerance = 10 - 7;
   /*default number of it*/
-  pOptions->iparam[0] = 1000;
+  pOptions->params.common.max_iter = 1000;
   /*enum case : do not use dgels*/
-  pOptions->iparam[4] = 0;
-  pOptions->iparam[5] = 3; /*Number of registered configurations*/
-  pOptions->iparam[8] = 0; /*Prb nedd a update*/
-  pOptions->dparam[5] = 1e-12; /*tol used by direct solver to check complementarity*/
-  pOptions->dparam[6] = 1e-12; /*tol for direct solver to determinate if a value is positive*/
+  pOptions->params.common.solvels = SICONOS_SOLVELS_DGESV;
+  pOptions->params.mlcp.max_configs = 3; /*Number of registered configurations*/
+  pOptions->params.mlcp.changed = 0; /*Prb nedd a update*/
+  pOptions->params.mlcp.tolerance_neg = 1e-12; /*tol used by direct solver to check complementarity*/
+  pOptions->params.mlcp.tolerance_pos = 1e-12; /*tol for direct solver to determinate if a value is positive*/
 
   int sizeOfIwork = mlcp_driver_get_iwork(problem, pOptions);
   if (sizeOfIwork)
@@ -57,17 +52,10 @@ void  mixedLinearComplementarity_default_setDefaultSolverOptions(MixedLinearComp
   int sizeOfDwork = mlcp_driver_get_dwork(problem, pOptions);
   if (sizeOfDwork)
     pOptions->dWork = (double*)malloc(sizeOfDwork * sizeof(double));
-
-
-
 }
 
 void  mixedLinearComplementarity_deleteDefaultSolverOptions(MixedLinearComplementarityProblem* problem, SolverOptions* pOptions)
 {
-  if (pOptions->iparam)
-    free(pOptions->iparam);
-  if (pOptions->dparam)
-    free(pOptions->dparam);
   if (pOptions->iWork)
     free(pOptions->iWork);
   if (pOptions->dWork)
@@ -78,7 +66,6 @@ void  mixedLinearComplementarity_deleteDefaultSolverOptions(MixedLinearComplemen
   //if (pOptions->callback)
   //  free(pOptions->callback);
   solver_options_nullify(pOptions);
-
 }
 
 int mixedLinearComplementarity_setDefaultSolverOptions(MixedLinearComplementarityProblem* problem, SolverOptions* pOptions)

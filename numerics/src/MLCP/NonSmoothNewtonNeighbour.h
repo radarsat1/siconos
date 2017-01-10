@@ -19,6 +19,7 @@
 #define NONSMOOTHNEWTONNEIGH_H
 
 #include "SiconosConfig.h"
+#include "SolverOptions.h"
 #include "NonSmoothNewton.h"
 
 /*!\file NonSmoothNewtonNeighbour.h
@@ -42,7 +43,8 @@ extern "C"
 
   double* nonSmoothNewtonNeighInitMemory(int n, double * dWork, int * iWork);
 
-  int nonSmoothNewtonNeigh(int, double*, NewtonFunctionPtr*, NewtonFunctionPtr*, int*, double*);
+  int nonSmoothNewtonNeigh(int, double*, NewtonFunctionPtr*, NewtonFunctionPtr*,
+                           SolverOptions *options);
 
   int nonSmoothNewtonNeigh_getNbIWork(int n, int m);
   int nonSmoothNewtonNeigh_getNbDWork(int n, int m);

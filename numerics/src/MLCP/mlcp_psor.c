@@ -67,15 +67,15 @@ void mlcp_psor(MixedLinearComplementarityProblem* problem, double *z, double *w,
   incy = 1;
   /* Recup input */
 
-  itermax = options->iparam[0];
-  tol   = options->dparam[0];
-  omega = options->dparam[2];
+  itermax = options->params.common.max_iter;
+  tol   = options->params.common.tolerance;
+  omega = options->params.common.omega;
   printf("omega %f\n is not used !!!!!", omega);
 
   /* Initialize output */
 
-  options->iparam[1] = 0;
-  options->dparam[1] = 0.0;
+  options->params.common.iter_done = 0;
+  options->params.common.residu = 0.0;
 
   /* Allocation */
 
@@ -189,8 +189,8 @@ void mlcp_psor(MixedLinearComplementarityProblem* problem, double *z, double *w,
 
   }
 
-  options->iparam[1] = iter;
-  options->dparam[1] = err;
+  options->params.common.iter_done = iter;
+  options->params.common.residu = err;
 
   if (err > tol)
   {

@@ -439,25 +439,19 @@ int variationalInequality_ExtraGradient_setDefaultSolverOptions(SolverOptions* o
   options->numberOfInternalSolvers = 0;
   options->isSet = 1;
   options->filterOn = 1;
-  options->iSize = 8;
-  options->dSize = 8;
-  options->iparam = (int *)malloc(options->iSize * sizeof(int));
-  options->dparam = (double *)malloc(options->dSize * sizeof(double));
   options->dWork = NULL;
   solver_options_nullify(options);
-  for (i = 0; i < 8; i++)
-  {
-    options->iparam[i] = 0;
-    options->dparam[i] = 0.0;
-  }
-  options->iparam[0] = 20000;
-  options->dparam[0] = 1e-3;
-  options->dparam[3] = 1e-3;
-  options->dparam[3] = -1.0; // rho is variable by default
-  options->dparam[4] = 2/3.0;  /* tau */
-  options->dparam[5] = 3.0/2.0;  /*tauinv */
-  options->dparam[6] = 0.9;  /* L */
-  options->dparam[7] = 0.3;  /* Lmin */
+
+  memset(&options->params, 0, sizeof(options->params));
+
+  options->params.common.iter_max   = 20000;
+  options->params.common.tolerance  = 1e-3;
+  options->params.common.rho        = 1e-3;
+  options->params.common.rho        = -1.0; // rho is variable by default
+  options->params.vi.tau            = 2/3.0;
+  options->params.vi.tau_inv        = 3.0/2.0;
+  options->params.vi.L              = 0.9;
+  options->params.vi.L_min          = 0.3;
 
   options->internalSolvers = NULL;
 

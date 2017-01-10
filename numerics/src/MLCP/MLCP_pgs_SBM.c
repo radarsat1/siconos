@@ -91,8 +91,8 @@ void mlcp_pgs_SBM(MixedLinearComplementarityProblem* problem, double *z, double 
    */
 
   /* Global Solver parameters*/
-  int itermax = options[0].iparam[0];
-  double tolerance = options[0].dparam[0];
+  int itermax = options[0].params.common.max_iter;
+  double tolerance = options[0].params.common.tolerance;
 
   /* Matrix M/vector q of the MLCP */
   SparseBlockStructuredMatrix* blmat = problem->M->matrix1;
@@ -136,8 +136,8 @@ void mlcp_pgs_SBM(MixedLinearComplementarityProblem* problem, double *z, double 
   int hasNotConverged = 1;
 
   /* Output from local solver */
-  options[0].iparam[2] = 0;
-  options[0].dparam[2] = 0.0;
+  options[0].params.common.iter_sum = 0;
+  options[0].params.common.residu_sum = 0.0;
 
   if (options->numberOfInternalSolvers < 1)
   {
@@ -192,10 +192,11 @@ void mlcp_pgs_SBM(MixedLinearComplementarityProblem* problem, double *z, double 
       }
       pos += local_problem->size;
       /* sum of local number of iterations (output from local_driver)*/
-      if (options[localSolverNum].iparam != NULL)
-        options[0].iparam[2] += internalSolvers[localSolverNum].iparam[1];
+      options[0].params.common.iter_sum +=
+        internalSolvers[localSolverNum].params.common.iter_done;
       /* sum of local errors (output from local_driver)*/
-      options[0].dparam[2] += internalSolvers[localSolverNum].dparam[1];
+      options[0].params.common.residu_sum +=
+        internalSolvers[localSolverNum].params.common.residu;
 
       if (infoLocal > 0)
       {
@@ -203,7 +204,7 @@ void mlcp_pgs_SBM(MixedLinearComplementarityProblem* problem, double *z, double 
         //free(local_problem->M);
         //free(local_problem);
         /* Number of GS iterations */
-        options[0].iparam[1] = iter;
+        options[0].params.common.iter_done = iter;
         fprintf(stderr, "MCLP_PGS_SBM error: Warning local LCP solver  at global iteration %d.\n for block-row number %d. Output info equal to %d.\n", iter, rowNumber, infoLocal);
         //exit(EXIT_FAILURE);
 
@@ -226,9 +227,9 @@ void mlcp_pgs_SBM(MixedLinearComplementarityProblem* problem, double *z, double 
   }
   *info = hasNotConverged;
   /* Number of GS iterations */
-  options[0].iparam[1] = iter;
+  options[0].params.common.iter_done = iter;
   /* Resulting error */
-  options[0].dparam[1] = error;
+  options[0].params.common.residu = error;
 
   free(local_problem->q);
   free(local_problem->M);
@@ -250,19 +251,13 @@ int mixedLinearComplementarity_pgs_SBM_setDefaultSolverOptions(MixedLinearComple
   options->numberOfInternalSolvers = 1;
   options->isSet = 1;
   options->filterOn = 1;
-  options->iSize = 5;
-  options->dSize = 5;
-  options->iparam = (int *)malloc(options->iSize * sizeof(int));
-  options->dparam = (double *)malloc(options->dSize * sizeof(double));
   options->dWork = NULL;
   solver_options_nullify(options);
-  for (i = 0; i < 5; i++)
-  {
-    options->iparam[i] = 0;
-    options->dparam[i] = 0.0;
-  }
-  options->iparam[0] = 1000;
-  options->dparam[0] = 1e-6;
+
+  memset(&options->params, 0, sizeof(options->params));
+
+  options->params.common.max_iter = 1000;
+  options->params.common.tolerance = 1e-6;
   options->internalSolvers = (SolverOptions*)malloc(options->numberOfInternalSolvers * sizeof(SolverOptions));
 
   linearComplementarity_pgs_setDefaultSolverOptions(options->internalSolvers);

@@ -179,7 +179,7 @@ int lcp_driver_DenseMatrix(LinearComplementarityProblem* problem, double *z , do
       w[0] = 0.;
       z[0] = -q[0] / M[0];
       info = 0;
-      options->dparam[1] = 0.0; /* Error */
+      options->params.common.residu = 0.0; /* Error */
       printf("LCP TRIVIAL %f\n", z[0]);
       if (verbose > 0)
 	printf("LCP_driver_DenseMatrix: found trivial solution for the LCP (problem of size 1). \n");
@@ -303,11 +303,11 @@ int lcp_driver_DenseMatrix(LinearComplementarityProblem* problem, double *z , do
       lcp_pivot(problem, z , w , &info , options);
       break;
     case SICONOS_LCP_BARD:
-      options->iparam[3] = SICONOS_LCP_PIVOT_BARD;
+      options->params.pivot_based.pivot_rule = SICONOS_LCP_PIVOT_BARD;
       lcp_pivot(problem, z , w , &info , options);
       break;
     case SICONOS_LCP_MURTY:
-      options->iparam[3] = SICONOS_LCP_PIVOT_LEAST_INDEX;
+      options->params.pivot_based.pivot_rule = SICONOS_LCP_PIVOT_LEAST_INDEX;
       lcp_pivot(problem, z , w , &info , options);
       break;
     case SICONOS_LCP_PATHSEARCH:

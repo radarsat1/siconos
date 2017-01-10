@@ -120,17 +120,17 @@ void mlcp_FB(MixedLinearComplementarityProblem* problem, double *z, double *w, i
   NewtonFunctionPtr F = &F_MCPFischerBurmeister;
   NewtonFunctionPtr jacobianF = &jacobianF_MCPFischerBurmeister;
   double err;
-  double tol = options->dparam[0];
+  double tol = options->params.common.tolerance;
   int i;
   /*only for debug
   double * zz = (double *)malloc((sN+sM)*sizeof(double));
   memcpy(zz,z,(sN+sM)*sizeof(double));*/
 
 
-  *info = nonSmoothNewtonNeigh(sN + sM, z, &F, &jacobianF, options->iparam, options->dparam);
+  *info = nonSmoothNewtonNeigh(sN + sM, z, &F, &jacobianF, options);
   if (*info > 0)
   {
-    fprintf(stderr, "Numerics, mlcp_FB failed, reached max. number of iterations without convergence. Residual = %f\n", options->dparam[1]);
+    fprintf(stderr, "Numerics, mlcp_FB failed, reached max. number of iterations without convergence. Residual = %f\n", options->params.common.residu);
     /*ONLY FOR DEBUG
       mixedLinearComplementarity_display(problem);
     printf("with z init;\n");

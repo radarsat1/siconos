@@ -152,7 +152,7 @@ int lcp_enum_getNbIWork(LinearComplementarityProblem* problem, SolverOptions* op
 int lcp_enum_getNbDWork(LinearComplementarityProblem* problem, SolverOptions* options)
 {
   int aux = 3 * (problem->size) + (problem->size) * (problem->size);
-  if (options->iparam[4])
+  if (options->params.common.solvels == SICONOS_SOLVELS_DGELS)
   {
     LWORK = -1;
     //int info = 0;
@@ -199,12 +199,12 @@ void lcp_enum(LinearComplementarityProblem* problem, double *z, double *w, int *
   int * ipiv;
   int check;
   int LAinfo = 0;
-  int useDGELS = options->iparam[4];
+  int useDGELS = options->params.common.solvels == SICONOS_SOLVELS_DGELS;
 
   /*OUTPUT param*/
-  sCurrentEnum = options->iparam[3];
-  tol = options->dparam[0];
-  int multipleSolutions = options->iparam[0];
+  sCurrentEnum = options->params.common.current_enum;
+  tol = options->params.common.tolerance;
+  int multipleSolutions = options->params.common.multiple_solutions;
   int numberofSolutions = 0;
 
 
@@ -307,8 +307,8 @@ void lcp_enum(LinearComplementarityProblem* problem, double *z, double *w, int *
 
 
         lcp_fillSolution(z, w, sSize, sWZ, sQ);
-        options->iparam[1] = (int) sCurrentEnum - 1;
-        options->iparam[2] = numberofSolutions;
+        options->params.common.current_enum = (int) sCurrentEnum - 1;
+        options->params.common.n_solutions = numberofSolutions;
         if (!multipleSolutions)  return;
       }
     }
@@ -332,15 +332,7 @@ int linearComplementarity_enum_setDefaultSolverOptions(LinearComplementarityProb
   options->numberOfInternalSolvers = 0;
   options->isSet = 1;
   options->filterOn = 1;
-  options->iSize = 5;
-  options->dSize = 5;
-  options->iparam = (int *)malloc(options->iSize * sizeof(int));
-  options->dparam = (double *)malloc(options->dSize * sizeof(double));
-  for (i = 0; i < 5; i++)
-  {
-    options->iparam[i] = 0;
-    options->dparam[i] = 0.0;
-  }
+  memset(&options->params, 0, sizeof(options->params));
   if (problem)
   {
     options->dWork = (double*) malloc(lcp_enum_getNbDWork(problem, options) * sizeof(double));
@@ -352,7 +344,7 @@ int linearComplementarity_enum_setDefaultSolverOptions(LinearComplementarityProb
     options->iWork = NULL;
   }
 
-  options->dparam[0] = 1e-12;
+  options->params.common.tolerance = 1e-12;
 
 
 

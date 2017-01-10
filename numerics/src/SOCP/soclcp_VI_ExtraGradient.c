@@ -66,48 +66,25 @@ void soclcp_VI_ExtraGradient(SecondOrderConeLinearComplementarityProblem* proble
   variationalInequality_setDefaultSolverOptions(visolver_options,
                                                 SICONOS_VI_EG);
 
-  int isize = options->iSize;
-  int dsize = options->dSize;
-  int vi_isize = visolver_options->iSize;
-  int vi_dsize = visolver_options->dSize;
-
-  if (isize != vi_isize )
-  {
-    printf("size prolem in soclcp_VI_ExtraGradient\n");
-  }
-  if (dsize != vi_dsize )
-  {
-    printf("size prolem in soclcp_VI_ExtraGradient\n");
-  }
-  int i;
-  for (i = 0; i < isize; i++)
-  {
-    if (options->iparam[i] != 0 )
-      visolver_options->iparam[i] = options->iparam[i] ;
-  }
-  for (i = 0; i < dsize; i++)
-  {
-    if (fabs(options->dparam[i]) >= 1e-24 )
-      visolver_options->dparam[i] = options->dparam[i] ;
-  }
+  visolver_options->params = options->params;
 
   variationalInequality_ExtraGradient(vi, reaction, velocity , info , visolver_options);
 
 
 
   /* **** Criterium convergence **** */
-  soclcp_compute_error(problem, reaction , velocity, options->dparam[0], options, &error);
+  soclcp_compute_error(problem, reaction, velocity, options, &error);
 
   /* for (i =0; i< n ; i++) */
   /* { */
   /*   printf("reaction[%i]=%f\t",i,reaction[i]);    printf("velocity[%i]=F[%i]=%f\n",i,i,velocity[i]); */
   /* } */
 
-  error = visolver_options->dparam[1];
-  iter = visolver_options->iparam[7];
+  error = visolver_options->params.common.residu;
+  iter = visolver_options->params.common.extra_iter_done;
 
-  options->dparam[1] = error;
-  options->iparam[7] = iter;
+  options->params.common.residu = error;
+  options->params.common.extra_iter_done = iter;
 
 
   if (verbose > 0)
@@ -139,21 +116,15 @@ int soclcp_VI_ExtraGradient_setDefaultSolverOptions(SolverOptions* options)
   options->numberOfInternalSolvers = 0;
   options->isSet = 1;
   options->filterOn = 1;
-  options->iSize = 8;
-  options->dSize = 8;
-  options->iparam = (int *)malloc(options->iSize * sizeof(int));
-  options->dparam = (double *)malloc(options->dSize * sizeof(double));
   options->dWork = NULL;
   solver_options_nullify(options);
-  for (i = 0; i < 8; i++)
-  {
-    options->iparam[i] = 0;
-    options->dparam[i] = 0.0;
-  }
-  options->iparam[0] = 20000;
-  options->dparam[0] = 1e-3;
-  options->dparam[3] = 1e-3;
-  options->dparam[3] = -1.0; // rho is variable by default
+
+  memset(&options->params, 0, sizeof(options->params));
+
+  options->params.common.max_iter = 20000;
+  options->params.common.tolerance = 1e-3;
+  options->params.common.rho = 1e-3;
+  options->params.common.rho = -1.0; // rho is variable by default
   options->internalSolvers = NULL;
 
   return 0;

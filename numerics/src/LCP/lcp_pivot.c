@@ -69,9 +69,9 @@ void lcp_pivot_covering_vector(LinearComplementarityProblem* problem, double* re
   unsigned has_sol = 0;
   unsigned nb_iter = 0;
   unsigned leaving = 0;
-  unsigned itermax = options->iparam[0];
-  unsigned preAlloc = options->iparam[SICONOS_IPARAM_PREALLOC];
-  unsigned pivot_selection_rule = options->iparam[SICONOS_IPARAM_PIVOT_RULE];
+  unsigned itermax = options->params.common.max_iter;
+  unsigned preAlloc = options->params.common.prealloc;
+  unsigned pivot_selection_rule = options->params.pivot_based.pivot_rule;
 
   double pivot;
   double tmp;
@@ -86,7 +86,7 @@ void lcp_pivot_covering_vector(LinearComplementarityProblem* problem, double* re
 
   /*output*/
 
-  options->iparam[1] = 0;
+  options->params.common.iter_done = 0;
 
   /* Allocation */
   switch (pivot_selection_rule)
@@ -107,7 +107,7 @@ void lcp_pivot_covering_vector(LinearComplementarityProblem* problem, double* re
   // with pathsearch we need a stack of the basis
   if (pivot_selection_rule == SICONOS_LCP_PIVOT_PATHSEARCH)
   {
-    stack_size = options->iparam[SICONOS_IPARAM_PATHSEARCH_STACKSIZE];
+    stack_size = options->params.pivot_based.path_search.stack_size;
     assert(stack_size >= 1);
   }
   if (preAlloc)
@@ -128,7 +128,7 @@ void lcp_pivot_covering_vector(LinearComplementarityProblem* problem, double* re
     // with pathsearch we need a stack of the basis
     if (pivot_selection_rule == SICONOS_LCP_PIVOT_PATHSEARCH)
     {
-      stack_size = options->iparam[SICONOS_IPARAM_PATHSEARCH_STACKSIZE];
+      stack_size = options->params.pivot_based.path_search.stack_size;
       assert(stack_size >= 1);
       basis = (int *)malloc(dim * stack_size * sizeof(int));
     }
@@ -397,7 +397,7 @@ void lcp_pivot_covering_vector(LinearComplementarityProblem* problem, double* re
         DEBUG_PRINTF("t value : %le\n", mat[t_indx]);
         *info = LCP_PATHSEARCH_LEAVING_T;
         bck_drive = drive < dim + 1 ? drive - 1 : drive - dim - 2;
-        options->dparam[2] = mat[t_indx];
+        options->params.pivot_based.path_search.result = mat[t_indx];
         goto exit_lcp_pivot;
       }
     }
@@ -527,7 +527,7 @@ exit_lcp_pivot:
   DEBUG_EXPR_WE(for (unsigned int i = 0; i < dim; ++i)
       { DEBUG_PRINTF("%e %e\n", u[i], s[i]) });
 
-  options->iparam[1] = nb_iter;
+  options->params.common.iter_done = nb_iter;
 
   /* update info */
   switch (pivot_selection_rule)
@@ -535,7 +535,7 @@ exit_lcp_pivot:
     /* Principal Pivoting Methods  */
     case SICONOS_LCP_PIVOT_BARD:
     case SICONOS_LCP_PIVOT_LEAST_INDEX:
-      *info = lcp_compute_error(problem, u, s, options->dparam[0], &tmp);
+      *info = lcp_compute_error(problem, u, s, options->params.common.max_iter, &tmp);
       break;
     case SICONOS_LCP_PIVOT_PATHSEARCH:
       break; /* info should already be set */

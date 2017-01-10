@@ -95,11 +95,15 @@ int * myiMalloc(int n)
 }
 int mlcp_direct_getNbIWork(MixedLinearComplementarityProblem* problem, SolverOptions* options)
 {
-  return (problem->n + problem->m) * (options->iparam[5] + 1) + options->iparam[5] * problem->m;
+  return (problem->n + problem->m) * (options->params.mlcp.max_configs + 1)
+    + options->params.mlcp.max_configs * problem->m;
 }
 int mlcp_direct_getNbDWork(MixedLinearComplementarityProblem* problem, SolverOptions* options)
 {
-  return  problem->n + problem->m + (options->iparam[5]) * ((problem->n + problem->m) * (problem->n + problem->m)) + (problem->n + problem->m);
+  return  problem->n + problem->m +
+    (options->params.mlcp.max_configs) * ((problem->n + problem->m)
+                                          * (problem->n + problem->m))
+    + (problem->n + problem->m);
 }
 
 /*
@@ -117,11 +121,11 @@ void mlcp_direct_init(MixedLinearComplementarityProblem* problem, SolverOptions*
 {
   spCurDouble = options->dWork;
   spCurInt = options->iWork;
-  sMaxNumberOfCC = options->iparam[5];
-  sTolneg = options->dparam[5];
-  sTolpos = options->dparam[6];
-  options->iparam[7] = 0;
-  sProblemChanged = options->iparam[8];
+  sMaxNumberOfCC = options->params.mlcp.max_configs;
+  sTolneg = options->params.mlcp.tolerance_neg;
+  sTolpos = options->params.mlcp.tolerance_pos;
+  options->params.mlcp.n_failed = 0;
+  sProblemChanged = options->params.mlcp.changed;
   sN = problem->n;
   sM = problem->m;
   sNbLines = problem->n + problem->m;
@@ -397,7 +401,7 @@ void mlcp_direct(MixedLinearComplementarityProblem* problem, double *z, double *
     }
     else
     {
-      options->iparam[7]++;
+      options->params.mlcp.n_failed++;
       *info = 1;
     }
   }

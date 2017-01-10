@@ -60,8 +60,7 @@ void soclcp_unitary_compute_and_add_error(double *z , double *w, unsigned int di
 }
 int soclcp_compute_error(
   SecondOrderConeLinearComplementarityProblem* problem,
-  double *z , double *w, double tolerance,
-  SolverOptions * options, double * error)
+  double *z , double *w, SolverOptions * options, double * error)
 {
   assert(problem);
   assert(z);
@@ -129,7 +128,7 @@ int soclcp_compute_error(
 
 
 
-int soclcp_compute_error_v(SecondOrderConeLinearComplementarityProblem* problem, double *z , double *w, double tolerance, SolverOptions *options, double * error)
+int soclcp_compute_error_v(SecondOrderConeLinearComplementarityProblem* problem, double *z , double *w, SolverOptions *options, double * error)
 {
   /* Checks inputs */
   if(problem == NULL || z == NULL || w == NULL)

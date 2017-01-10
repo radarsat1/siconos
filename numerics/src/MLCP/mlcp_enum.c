@@ -117,10 +117,10 @@ static void printRefSystem(void);
 /* } */
 
 
-int mixedLinearComplementarity_enum_setDefaultSolverOptions(MixedLinearComplementarityProblem* problem, SolverOptions* pOPtionSolver)
+int mixedLinearComplementarity_enum_setDefaultSolverOptions(MixedLinearComplementarityProblem* problem, SolverOptions* options)
 {
-  mixedLinearComplementarity_default_setDefaultSolverOptions(problem, pOPtionSolver);
-  pOPtionSolver->dparam[0] = 1e-12;
+  mixedLinearComplementarity_default_setDefaultSolverOptions(problem, options);
+  options->params.common.tolerance = 1e-12;
   return 0;
 }
 
@@ -157,7 +157,7 @@ int mlcp_enum_getNbDWork(MixedLinearComplementarityProblem* problem, SolverOptio
     return 0;
   assert(problem->M);
   LWORK = 0;
-  if (options->iparam[4])
+  if (options->params.common.solvels == SICONOS_SOLVELS_DGELS)
   {
     LWORK = -1;
     //int info = 0;
@@ -200,13 +200,13 @@ void mlcp_enum(MixedLinearComplementarityProblem* problem, double *z, double *w,
   sMl = problem->M->size0;
   sNn = problem->n;
   sMm = problem->m;
-  int useDGELS = options->iparam[4];
+  int useDGELS = options->params.common.solvels == SICONOS_SOLVELS_DGELS;
   /*OUTPUT param*/
   sW1 = w;
   sW2 = w + (sMl - problem->m); /*sW2 size :m */
   sU = z;
   sV = z + problem->n;
-  tol = options->dparam[0];
+  tol = options->params.common.tolerance;
 
   sMref = problem->M->matrix0;
   /*  LWORK = 2*npm; LWORK >= max( 1, MN + max( MN, NRHS ) ) where MN = min(M,N)*/
@@ -360,7 +360,7 @@ void mlcp_enum_Block(MixedLinearComplementarityProblem* problem, double *z, doub
   int * indexInBlock;
   int check;
   int LAinfo = 0;
-  int useDGELS = options->iparam[4];
+  int useDGELS = options->params.common.solvels == SICONOS_SOLVELS_DGELS;
   *info = 0;
   assert(problem->M);
   assert(problem->M->matrix0);
@@ -376,7 +376,7 @@ void mlcp_enum_Block(MixedLinearComplementarityProblem* problem, double *z, doub
   sW1 = w;
   /*sW2=w+(sMl-problem->m); sW2 size :m */
   sU = z;
-  tol = options->dparam[0];
+  tol = options->params.common.tolerance;
 
   sMref = problem->M->matrix0;
   /*  LWORK = 2*npm; LWORK >= max( 1, MN + max( MN, NRHS ) ) where MN = min(M,N)*/
