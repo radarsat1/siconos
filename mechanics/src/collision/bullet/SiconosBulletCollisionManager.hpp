@@ -40,6 +40,7 @@ struct SiconosBulletOptions
 
   double contactBreakingThreshold;
   double contactProcessingThreshold;
+  double manifoldContactBreakingThreshold;
   double worldScale;
   bool useAxisSweep3;
   unsigned int perturbationIterations;

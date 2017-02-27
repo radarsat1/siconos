@@ -93,7 +93,7 @@
 // everything works (under test conditions, very tentative) except
 // btStaticPlaneShape, so we replace it with a large box.
 
-#define USE_CONVEXHULL_FOR_BOX 1
+// #define USE_CONVEXHULL_FOR_BOX 1
 // #define USE_CONVEXHULL_FOR_SPHERE 1
 // #define USE_BOX_FOR_PLANE 1
 #define USE_CONVEXHULL_FOR_PLANE 1
@@ -152,6 +152,7 @@ struct btSiconosHeightData : public btHeightfieldTerrainShape {
 SiconosBulletOptions::SiconosBulletOptions()
   : contactBreakingThreshold(0.02)
   , contactProcessingThreshold(0.03)
+  , manifoldContactBreakingThreshold(1e-10)
   , worldScale(1.0)
   , useAxisSweep3(false)
   , perturbationIterations(3)
@@ -1458,7 +1459,8 @@ void SiconosBulletCollisionManager::updateInteractions(SP::Simulation simulation
         // determine whether points should be added or replaced.  We
         // want to bias towards adding them, so we set it to a low
         // value here.  (See btPersistentManifold::getCacheEntry())
-        it->manifold->setContactBreakingThreshold(1e-10);
+        it->manifold->setContactBreakingThreshold(
+          _options.manifoldContactBreakingThreshold);
 
         // Hopefully in the future we can have more control over how
         // Bullet decides which points are kept stable.  Incorrect
