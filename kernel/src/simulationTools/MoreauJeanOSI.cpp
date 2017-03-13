@@ -1649,12 +1649,14 @@ void MoreauJeanOSI::updateState(const unsigned int )
         assert(((d.p(_levelMaxForInput)).get()) &&
                " MoreauJeanOSI::updateState() *d.p(_levelMaxForInput) == NULL.");
         v = *d.p(_levelMaxForInput); // v = p
-        if(d.boundaryConditions())
+        if(d.boundaryConditions()) {
+          d.boundaryConditions()->updateBoundaryConditionsForDS(d, vfree);
           for(std::vector<unsigned int>::iterator
               itindex = d.boundaryConditions()->velocityIndices()->begin() ;
               itindex != d.boundaryConditions()->velocityIndices()->end();
               ++itindex)
             v.setValue(*itindex, 0.0);
+        }
         W.PLUForwardBackwardInPlace(v);
 
         v +=  vfree;
@@ -1736,12 +1738,14 @@ void MoreauJeanOSI::updateState(const unsigned int )
         /*d.p has been fill by the Relation->computeInput, it contains
           B \lambda _{k+1}*/
         v = *d.p(_levelMaxForInput); // v = p
-        if(d.boundaryConditions())
+        if(d.boundaryConditions()) {
+          d.boundaryConditions()->updateBoundaryConditionsForDS(d, vfree);
           for(std::vector<unsigned int>::iterator
               itindex = d.boundaryConditions()->velocityIndices()->begin() ;
               itindex != d.boundaryConditions()->velocityIndices()->end();
               ++itindex)
             v.setValue(*itindex, 0.0);
+        }
 
         _dynamicalSystemsGraph->properties(*dsi).W->PLUForwardBackwardInPlace(v);
 

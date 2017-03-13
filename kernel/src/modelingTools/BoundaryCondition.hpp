@@ -104,6 +104,10 @@ public:
    */
   virtual void computePrescribedVelocity(double time);
 
+  virtual void updateBoundaryConditionsForDS(LagrangianDS& ds, SiconosVector& vfree) {}
+
+  virtual void updateBoundaryConditionsForDS(NewtonEulerDS& ds, SiconosVector& vfree) {}
+
 protected:
   /** serialization hooks
   */

@@ -1109,6 +1109,4 @@ public:
 
 };
 
-TYPEDEF_SPTR(LagrangianDS)
-
 #endif // LAGRANGIANDS_H

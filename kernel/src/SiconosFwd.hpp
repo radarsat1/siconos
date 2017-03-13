@@ -63,6 +63,7 @@ DEFINE_SPTR(TimeDiscretisation)
 // Dynamical systems
 DEFINE_SPTR(DynamicalSystem)
 DEFINE_SPTR(LagrangianLinearTIDS)
+DEFINE_SPTR(LagrangianDS)
 DEFINE_SPTR(NewtonEulerDS)
 
 DEFINE_SPTR(Event)

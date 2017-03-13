@@ -1307,6 +1307,11 @@ class Hdf5():
                 bc = bc_class(self.boundary_conditions()[name].attrs['indices'],
                               self.boundary_conditions()[name].attrs['v'])
 
+            elif ( bc_type == 'DynamicBC' ):
+                bc = bc_class(ds1)
+            else:
+                bc = bc_class(ds1, self.boundary_conditions()[name].attrs)
+
             # set bc to the ds1
 
             ds1.setBoundaryConditions(bc);
