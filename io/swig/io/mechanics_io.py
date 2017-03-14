@@ -1292,42 +1292,31 @@ class Hdf5():
             topo = self._model.nonSmoothDynamicalSystem().\
                 topology()
 
-            bc_type = self.boundary_conditions()[name].attrs['type']
-            bc_class = getattr(Kernel,bc_type)
+            bc_attrs = self.boundary_conditions()[name].attrs
+            bc_type = bc_attrs['type']
+            bc_class = custom_namespace.get(bc_type)
+            if bc_class is None: bc_class = getattr(Kernel,bc_type)
 
-            print('name = ', name)
-            print('object1')
-
-            ds1_name = self.boundary_conditions()[name].attrs['object1']
+            ds1_name = bc_attrs['object1']
             ds1 = topo.getDynamicalSystem(ds1_name)
 
+            params = [bc_attrs[x] for x in
+                      {'HarmonicBC': ['indices', 'a', 'b', 'omega', 'phi'],
+                       'FixedBC': ['indices'],
+                       'BoundaryCondition': ['indices', 'v']}
+                      .get(bc_type, [])]
 
-            if ( bc_type == 'HarmonicBC') :
-                bc = bc_class(self.boundary_conditions()[name].attrs['indices'],
-                              self.boundary_conditions()[name].attrs['a'],
-                              self.boundary_conditions()[name].attrs['b'],
-                              self.boundary_conditions()[name].attrs['omega'],
-                              self.boundary_conditions()[name].attrs['phi'])
+            try:
+                bc = bc_class(*params)
+            except:
+                bc = bc_class(bc_attrs)
 
-            elif ( bc_type == 'FixedBC' ):
-                bc = bc_class(self.boundary_conditions()[name].attrs['indices'])
+            # keep the python class, otherwise memory problems
+            # (see shared_ptr + swig director bug)
+            self._keep.append(bc)
 
-            elif ( bc_type == 'BoundaryCondition' ):
-                bc = bc_class(self.boundary_conditions()[name].attrs['indices'],
-                              self.boundary_conditions()[name].attrs['v'])
-
-            elif ( bc_type == 'DynamicBC' ):
-                bc = bc_class(ds1)
-            else:
-                bc = bc_class(ds1, self.boundary_conditions()[name].attrs)
-
-            # set bc to the ds1
-
+            # set the bc for the ds1
             ds1.setBoundaryConditions(bc);
-
-            #joint_inter = Interaction(5, joint_nslaw, joint)
-            #    self._model.nonSmoothDynamicalSystem().\
-            #        link(joint_inter, ds1)
 
     def importPermanentInteraction(self, name):
         """
@@ -2166,11 +2155,10 @@ class Hdf5():
             joint.attrs['axis']=axis
 
     def addBoundaryCondition(self, name, object1, indices=None, bc_class='HarmonicBC',
-                             v=None, a=None, b=None, omega=None, phi=None):
+                             v=None, a=None, b=None, omega=None, phi=None,
+                             params=None):
         """
-        add boundarycondition to the object object1
-
-        implementation only works for HarmonicBC for the moment
+        add a BoundaryCondition to the object object1
         """
         if name not in self.boundary_conditions():
             boundary_condition=self.boundary_conditions().create_dataset(name, (0,))
@@ -2187,7 +2175,10 @@ class Hdf5():
             elif bc_class == 'FixedBC' :
                 pass # nothing to do
             else:
-                raise NotImplementedError
+                # Custom BC may store arbitrary parameters
+                if params is not None:
+                    for k,v in params.items():
+                        boundary_condition.attrs[k] = v
 
     def run(self,
             with_timer=False,
