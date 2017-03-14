@@ -338,6 +338,15 @@ phiv = np.vectorize(phi)
 thetav = np.vectorize(theta)
 psiv = np.vectorize(psi)
 
+# Custom namespace can be used for storing custom classes,
+# e.g. BoundaryCondition
+custom_namespace = {}
+
+def namespace(f, fname=None):
+    """Add a function or class to the custom namespace.
+       Can be used as a decorator."""
+    if fname is None: fname = f.__name__
+    custom_namespace[fname] = f
 
 #
 # load .vtp file
