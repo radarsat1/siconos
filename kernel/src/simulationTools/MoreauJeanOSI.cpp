@@ -1643,6 +1643,9 @@ void MoreauJeanOSI::updateState(const unsigned int )
       SiconosVector &v = *d.velocity();
       bool baux = dsType == Type::LagrangianDS && useRCC && _simulation->relativeConvergenceCriterionHeld();
 
+      if (d.boundaryConditions())
+        d.boundaryConditions()->updateBoundaryConditionsForDS(d, vfree);
+
       if(d.p(_levelMaxForInput) && d.p(_levelMaxForInput)->size() > 0)
       {
 
@@ -1650,7 +1653,6 @@ void MoreauJeanOSI::updateState(const unsigned int )
                " MoreauJeanOSI::updateState() *d.p(_levelMaxForInput) == NULL.");
         v = *d.p(_levelMaxForInput); // v = p
         if(d.boundaryConditions()) {
-          d.boundaryConditions()->updateBoundaryConditionsForDS(d, vfree);
           for(std::vector<unsigned int>::iterator
               itindex = d.boundaryConditions()->velocityIndices()->begin() ;
               itindex != d.boundaryConditions()->velocityIndices()->end();
@@ -1732,6 +1734,8 @@ void MoreauJeanOSI::updateState(const unsigned int )
 
       SiconosVector& vfree = *workVectors[OneStepIntegrator::free];
 
+      if (d.boundaryConditions())
+        d.boundaryConditions()->updateBoundaryConditionsForDS(d, vfree);
 
       if( d.p(_levelMaxForInput) && d.p(_levelMaxForInput)->size() > 0)
       {
@@ -1739,7 +1743,6 @@ void MoreauJeanOSI::updateState(const unsigned int )
           B \lambda _{k+1}*/
         v = *d.p(_levelMaxForInput); // v = p
         if(d.boundaryConditions()) {
-          d.boundaryConditions()->updateBoundaryConditionsForDS(d, vfree);
           for(std::vector<unsigned int>::iterator
               itindex = d.boundaryConditions()->velocityIndices()->begin() ;
               itindex != d.boundaryConditions()->velocityIndices()->end();
