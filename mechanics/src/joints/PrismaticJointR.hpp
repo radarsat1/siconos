@@ -169,7 +169,7 @@ public:
   /** Return the number of degrees of freedom of this joint.
       \return the number of degrees of freedom (DoF)
    */
-  virtual unsigned int numberOfDoF() { return 2; }
+  virtual unsigned int numberOfDoF() { return 1; }
 
   /** Return the type of a degree of freedom of this joint.
       \return the type of the degree of freedom (DoF)

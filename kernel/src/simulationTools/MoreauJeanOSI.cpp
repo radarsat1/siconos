@@ -1915,6 +1915,7 @@ bool MoreauJeanOSI::addInteractionInIndexSet(SP::Interaction inter, unsigned int
     if(y <= 0)
       DEBUG_PRINT("MoreauJeanOSI::addInteractionInIndexSet ACTIVATE.\n");
     );
+  printf("addInteractionInIndexSet(%p,%d) -- y = %f\n", &*inter, i, y);
   return (y <= 0.0);
 }
 

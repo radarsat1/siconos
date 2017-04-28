@@ -1310,6 +1310,7 @@ class Hdf5():
                     assert(np.shape(nslaws)[0]==np.shape(stops)[0])
                     nslaws = [self._nslaws[nsl] for nsl in nslaws]
                 for nsl, (axis, pos, dir) in zip(nslaws,stops):
+                    print('adding stop')
                     # "bool()" is needed because type of dir is
                     # numpy.bool_, which SWIG doesn't handle well.
                     stop = joints.JointStopR(joint, pos, bool(dir<0), int(axis))
@@ -1727,6 +1728,7 @@ class Hdf5():
         """
         if self._model.nonSmoothDynamicalSystem().\
                 topology().indexSetsSize() > 1:
+            print('indexSet1 size', len(self._model.nonSmoothDynamicalSystem().topology().indexSet(1).interactions()))
             time = self.currentTime()
             contact_points = self._io.contactPoints(self._model,
                                                     self._contact_index_set)

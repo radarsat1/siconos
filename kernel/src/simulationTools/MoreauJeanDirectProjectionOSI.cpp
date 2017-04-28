@@ -134,10 +134,12 @@ bool MoreauJeanDirectProjectionOSI::addInteractionInIndexSet(SP::Interaction int
                _activateYVelThreshold);
 
   assert(!isnan(y));
-#ifdef DEBUG_MESSAGES
+  printf("addInteractionInIndexSet(%p,%d) -- y = %f, _activateYPosThreshold = %f, _activateYVelThreshold = %f\n",
+         &*inter, i, y, _activateYPosThreshold, _activateYVelThreshold);
+//#ifdef DEBUG_MESSAGES
   if(y <= _activateYPosThreshold)
-    DEBUG_PRINT("MoreauJeanDirectProjectionOSI::addInteractionInIndexSet ACTIVATE.\n");
-#endif
+    printf("MoreauJeanDirectProjectionOSI::addInteractionInIndexSet ACTIVATE.\n");
+//#endif
   return (y <= _activateYPosThreshold);
 }
 

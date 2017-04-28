@@ -112,6 +112,13 @@ void JointStopR::computeh(double time, BlockVector& q0, SiconosVector& y)
   SiconosVector tmp_y(_axisMax - _axisMin + 1);
   _joint->computehDoF(time, q0, tmp_y, _axisMin);
 
+  // Do friction instead of stop
+  y.setValue(0, -0.1);
+  //y.setValue(1, (tmp_y.getValue(0) + _pos->getValue(0)) * _dir->getValue(0));
+  y.setValue(2, tmp_y.getValue(0));
+
+  return;
+
   // Copy and scale each stop for its axis/position/direction
   for (int i=0; i < y.size(); i++)
     y.setValue(i, (tmp_y.getValue((*_axis)[i])
@@ -130,6 +137,17 @@ void JointStopR::computeJachq(double time, Interaction& inter, SP::BlockVector q
 
   // Compute the jacobian for the required range of axes
   _joint->computeJachqDoF(time, inter, q0, *_jachqTmp, _axisMin);
+
+  // Do friction instead of stop
+  _jachq->zero();
+  for (int j=0; j<_jachq->size(1); j++) {
+    //_jachq->setValue(1, j, _jachqTmp->getValue(0, j));
+    _jachq->setValue(2, j, _jachqTmp->getValue(0, j));
+  }
+  printf("_jachq:\n");
+  _jachq->display();
+
+  return;
 
   // Copy indicated axes into the stop jacobian, possibly flipped for negative stops
   for (int i=0; i<_jachq->size(0); i++)
