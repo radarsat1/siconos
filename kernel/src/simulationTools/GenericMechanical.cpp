@@ -86,11 +86,11 @@ void GenericMechanical::computeDiagonalInteractionBlock(const InteractionsGraph:
     else if (Type::value(*(inter->nonSmoothLaw()))
              == Type::NewtonImpactFrictionNSL)
     {
-      printf("adding one NIFNSL of size %d\n", size);
       FrictionContactProblem * pAux =
         (FrictionContactProblem *)addProblem(_pnumerics_GMP, SICONOS_NUMERICS_PROBLEM_FC3D, size);
       SP::NewtonImpactFrictionNSL nsLaw =
         std11::static_pointer_cast<NewtonImpactFrictionNSL> (inter->nonSmoothLaw());
+      printf("adding one NIFNSL of size %d, mu = %f\n", size, nsLaw->mu());
       pAux->dimension = 3;
       pAux->numberOfContacts = 1;
       *(pAux->mu) = nsLaw->mu();

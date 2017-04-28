@@ -128,6 +128,8 @@ void NewtonEulerR::computeOutput(double time, Interaction& inter, InteractionPro
   if (derivativeNumber == 0)
   {
     computeh(time, q, y);
+    printf("%p computeh: ", this);
+    y.display();
   }
   else
   {
@@ -144,6 +146,12 @@ void NewtonEulerR::computeOutput(double time, Interaction& inter, InteractionPro
       DEBUG_EXPR(_jachqT->display();); DEBUG_EXPR((*DSlink[NewtonEulerR::velocity]).display(););
 
       prod(*_jachqT, *DSlink[NewtonEulerR::velocity], y);
+      printf("%p computeOutput level=1 vel: ", this);
+      DSlink[NewtonEulerR::velocity]->display();
+      printf("%p computeOutput level=1 jachqT: ", this);
+      _jachqT->display();
+      printf("%p computeOutput level=1 y: ", this);
+      y.display();
 
       DEBUG_EXPR(y.display(););
     }
@@ -181,8 +189,12 @@ void NewtonEulerR::computeInput(double time, Interaction& inter, InteractionProp
   {
     prod(lambda, *_jachqT, *_contactForce, true);
 
-    DEBUG_PRINT("NewtonEulerR::computeInput contact force :\n");
-    DEBUG_EXPR(_contactForce->display(););
+    printf("NewtonEulerR::computeInput lambda :\n");
+    lambda.display();
+    printf("NewtonEulerR::computeInput jachqT :\n");
+    _jachqT->display();
+    printf("NewtonEulerR::computeInput contact force :\n");
+    _contactForce->display();
 
     /*data is a pointer of memory associated to a dynamical system*/
     /** false because it consists in doing a sum*/
@@ -282,6 +294,8 @@ void NewtonEulerR::computeJach(double time, Interaction& inter, InteractionPrope
 
   computeJachq(time, inter, DSlink[NewtonEulerR::q0]);
   computeJachqT(inter, DSlink[NewtonEulerR::q0]);
+  printf("%p _jachq: ", this);
+  _jachq->display();
 
   //computeJachqDot(time, inter); // This is not needed here
   //computeDotJachq(time, inter);

@@ -105,6 +105,7 @@ void JointStopR::computeh(double time, BlockVector& q0, SiconosVector& y)
     if (case_posneg)
       y.setValue(1, (y.getValue(0) + _pos->getValue(1)) * _dir->getValue(1));
     y.setValue(0, (y.getValue(0) + _pos->getValue(0)) * _dir->getValue(0));
+    exit(1);
     return;
   }
 
@@ -113,9 +114,11 @@ void JointStopR::computeh(double time, BlockVector& q0, SiconosVector& y)
   _joint->computehDoF(time, q0, tmp_y, _axisMin);
 
   // Do friction instead of stop
-  y.setValue(0, -0.1);
   //y.setValue(1, (tmp_y.getValue(0) + _pos->getValue(0)) * _dir->getValue(0));
-  y.setValue(2, tmp_y.getValue(0));
+
+  // this has no effect in velocity-level, set to zero to get "just on
+  // the surface" friction, no impact.
+  y.setValue(0, 0.0);
 
   return;
 
@@ -138,14 +141,20 @@ void JointStopR::computeJachq(double time, Interaction& inter, SP::BlockVector q
   // Compute the jacobian for the required range of axes
   _joint->computeJachqDoF(time, inter, q0, *_jachqTmp, _axisMin);
 
+  printf("_jachqTmp: ");
+  _jachqTmp->display();
+
   // Do friction instead of stop
   _jachq->zero();
   for (int j=0; j<_jachq->size(1); j++) {
-    //_jachq->setValue(1, j, _jachqTmp->getValue(0, j));
-    _jachq->setValue(2, j, _jachqTmp->getValue(0, j));
+    // Question: why does the *magnitude* of this vector (at least for
+    // components 0,1,2 for a prismatic joint) affect the friction
+    // behaviour, but mu in the NSL does not?
+    // Need to understand exactly what is the T matrix, where is
+    // computeT() defined?
+    HERE
+    _jachq->setValue(0, j, _jachqTmp->getValue(0, j) * -5e-5);
   }
-  printf("_jachq:\n");
-  _jachq->display();
 
   return;
 
