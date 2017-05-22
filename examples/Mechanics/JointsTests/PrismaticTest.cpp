@@ -97,10 +97,7 @@ int main(int argc, char* argv[])
 
     // Interaction ball-floor
     // -- prismatic axis 0,0,1 in absolute frame: ball can only move in Z
-    SP::SiconosVector axis1(new SiconosVector(3));
-    axis1->setValue(0, 0);
-    axis1->setValue(1, 0);
-    axis1->setValue(2, 1);
+    SP::SiconosVector axis1(new SiconosVector({0,0,1}));
 
     SP::PrismaticJointR relation1(new PrismaticJointR(beam1, axis1, true));
 
