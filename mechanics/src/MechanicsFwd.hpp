@@ -28,6 +28,8 @@
   REGISTER(NewtonEulerJointR)                   \
   REGISTER(FixedJointR)                         \
   REGISTER(CouplerJointR)                       \
+  REGISTER(Pivot2JointR)                        \
+  REGISTER(UniversalJointR)                     \
   REGISTER(JointStopR)                          \
   REGISTER(JointFrictionR)                      \
   REGISTER(FMatrix)                             \

@@ -1350,7 +1350,7 @@ class Hdf5():
                 ds2_name = self.joints()[name].attrs['object2']
                 ds2 = topo.getDynamicalSystem(ds2_name)
 
-            # Every joint has a slightly different interface
+            # Check numbers of axis/points for known joints
             if joint_class == joints.KneeJointR:
                 assert(len(points)==1 and len(axes)==0)
             elif joint_class == joints.PivotJointR:
@@ -1361,6 +1361,10 @@ class Hdf5():
                 assert(len(points)==0 and len(axes)==1)
             elif joint_class == joints.CylindricalJointR:
                 assert(len(points)==1 and len(axes)==1)
+            elif joint_class == joints.UniversalJointR:
+                assert(len(points)==1 and len(axes)==2)
+            elif joint_class == joints.Pivot2JointR:
+                assert(len(points)==1 and len(axes)==2)
             elif joint_class == joints.FixedJointR:
                 assert(len(points)==0 and len(axes)==0)
 
@@ -1376,6 +1380,8 @@ class Hdf5():
             else:
                 # Generic NewtonEulerJointR interface
                 joint = joint_class()
+                assert(len(joint.points()) == len(points))
+                assert(len(joint.axes()) == len(axes))
                 for n,p in enumerate(points):
                     joint.setPoint(n, p)
                 for n,a in enumerate(axes):

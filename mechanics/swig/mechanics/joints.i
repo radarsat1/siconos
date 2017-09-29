@@ -14,6 +14,8 @@ PY_FULL_REGISTER(PrismaticJointR);
 PY_FULL_REGISTER(FixedJointR);
 PY_FULL_REGISTER(CylindricalJointR);
 PY_FULL_REGISTER(CouplerJointR);
+PY_FULL_REGISTER(Pivot2JointR);
+PY_FULL_REGISTER(UniversalJointR);
 PY_FULL_REGISTER(JointStopR);
 PY_FULL_REGISTER(JointFrictionR);
 
@@ -34,6 +36,10 @@ PY_FULL_REGISTER(JointFrictionR);
     { return std11::dynamic_pointer_cast<CylindricalJointR>(rel); }
   SP::CouplerJointR cast_CouplerJointR(SP::Relation rel)
     { return std11::dynamic_pointer_cast<CouplerJointR>(rel); }
+  SP::Pivot2JointR cast_Pivot2JointR(SP::Relation rel)
+    { return std11::dynamic_pointer_cast<Pivot2JointR>(rel); }
+  SP::UniversalJointR cast_UniversalJointR(SP::Relation rel)
+    { return std11::dynamic_pointer_cast<UniversalJointR>(rel); }
   SP::JointStopR cast_JointStopR(SP::Relation rel)
     { return std11::dynamic_pointer_cast<JointStopR>(rel); }
   SP::JointFrictionR cast_JointFrictionR(SP::Relation rel)
