@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "SparseMatrix_internal.h"
 #include "NumericsMatrix.h"
 #include <math.h>
 #include "numericsMatrixTestFunction.h"

@@ -6,8 +6,14 @@
 #include "SiconosBlas.h"
 #include "fc3d_Solvers.h"
 #include "NonSmoothDrivers.h"
+#include "SparseMatrix_internal.h"
+
+// avoid a conflict with old csparse.h in case fclib includes it
+#define _CS_H
+
 #include "fclib_interface.h"
 #include "numerics_verbose.h"
+#include "SiconosCompat.h"
 static int fccounter = -1;
 
 /* #define DEBUG_NOCOLOR */

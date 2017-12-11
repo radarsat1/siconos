@@ -25,7 +25,8 @@ option(WITH_GENERATION "Generation of serialization functions with gccxml. Defau
 option(WITH_CXX "Enable CXX compiler for numerics. Default = ON" ON)
 option(WITH_UNSTABLE "Enable this to include all 'unstable' sources. Default=OFF" OFF)
 option(BUILD_SHARED_LIBS "Building of shared libraries. Default = ON" ON)
-option(DEV_MODE "Compilation flags setup for developpers. Default = OFF" OFF)
+option(DEV_MODE "Compilation flags setup for developers. Default = OFF" OFF)
+option(DEV_MODE_STRICT "Compilation flags setup for developers (extra strict, conversion warnings). Default = OFF" OFF)
 option(WITH_BULLET "compilation with Bullet Bindings. Default = OFF" OFF)
 option(WITH_OCC "compilation with OpenCascade Bindings. Default = OFF" OFF)
 option(WITH_MUMPS "Compilation with the MUMPS solver. Default = OFF" OFF)
@@ -53,6 +54,13 @@ ELSE(UNIX)
   set(siconos_python_install "standard" CACHE STRING "Install mode for siconos python package")
 ENDIF(UNIX)
 
+# If OFF, headers from libraries in externals will not be installed.
+option(INSTALL_EXTERNAL_HEADERS
+  "Whether or not headers for external libraries should be installed. Default=OFF" OFF)
+
+# If ON, internal headers will not be installed.
+option(INSTALL_INTERNAL_HEADERS
+  "Whether or not headers for internal definitions should be installed. Default=OFF" OFF)
 
 # List of components to build and installed
 # List of siconos component to be installed

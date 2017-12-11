@@ -22,6 +22,7 @@
 #include <stdbool.h>
 #include <float.h>
 
+#include "SparseMatrix_internal.h"
 #include "NumericsMatrix.h"
 #include "NumericsSparseMatrix.h"
 #include "SolverOptions.h"
@@ -29,6 +30,7 @@
 #include "fc3d_Solvers.h"
 #include "fc3d_compute_error.h"
 #include "projectionOnCone.h"
+#include "SiconosCompat.h"
 
 #ifdef HAVE_GAMS_C_API
 
@@ -143,7 +145,7 @@ static void setDashedOptions(const char* optName, const char* optValue, const ch
   }
 }
 
-static csi SN_rm_normal_part(csi i, csi j, double val, void* env)
+static CS_INT SN_rm_normal_part(CS_INT i, CS_INT j, double val, void* env)
 {
   if (i%3 == 0)
   {

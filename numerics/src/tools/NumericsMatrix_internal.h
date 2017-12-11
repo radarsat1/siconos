@@ -16,10 +16,10 @@
  * limitations under the License.
 */
 
-#ifndef NumericsMatrix_private_H
-#define NumericsMatrix_private_H
+#ifndef NumericsMatrix_internal_H
+#define NumericsMatrix_internal_H
 
-/*!\file NumericsMatrix_private.h
+/*!\file NumericsMatrix_internal.h
  * \brief non-public functions and data structures
  */
 
@@ -95,7 +95,7 @@ extern "C"
 
 #define UMFPACK_FN(X) UMFPACKPREFIX(_ ## X)
 
-/** \struct NM_UMFPACK_WS NumericsMatrix_private.h
+/** \struct NM_UMFPACK_WS NumericsMatrix_internal.h
  * Structure for holding the data UMFPACK needs
  */
 typedef struct {
@@ -103,7 +103,7 @@ typedef struct {
   void* numeric;  /**< for the numerical factorization */
   double control[UMFPACK_CONTROL]; /**< control parameters */
   double info[UMFPACK_INFO]; /**< information from UMFPACK */
-  csi* wi; /**< integer workspace, size n */
+  CS_INT* wi; /**< integer workspace, size n */
   double* wd; /**< double workspace, size: with iterative refinement: 5n, without: n */
   double* x; /**< solution of the problem, size n */
 } NM_UMFPACK_WS;

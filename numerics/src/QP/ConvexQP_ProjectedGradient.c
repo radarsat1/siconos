@@ -20,6 +20,7 @@
 #include "ConvexQP_Solvers.h"
 #include "ConvexQP_computeError.h"
 #include "NumericsMatrix.h"
+#include "SiconosCompat.h"
 
 
 #include "SiconosBlas.h"
@@ -45,13 +46,20 @@ void convexQP_ProjectedGradient(ConvexQP* problem, double *z, double *w, int* in
 
   double* q = problem->q;
   NumericsMatrix* M = problem->M;
+
+  NumericsMatrix* A = problem->A;
+  if (A)
+  {
+    numerics_error("ConvexQP_ProjectedGradient", "This solver does not support a specific matrix A different from the identity");
+  }
+
   /* Dimension of the problem */
   int n =  problem->size;
 
   /* Maximum number of iterations */
-  int itermax = iparam[0];
+  int itermax = iparam[SICONOS_IPARAM_MAX_ITER];
   /* Tolerance */
-  double tolerance = dparam[0];
+  double tolerance = dparam[SICONOS_DPARAM_TOL];
 
   /*****  Projected Gradient iterations *****/
   int iter = 0; /* Current iteration number */
@@ -77,7 +85,7 @@ void convexQP_ProjectedGradient(ConvexQP* problem, double *z, double *w, int* in
   }
 
   if (rho == 0.0)
-    numerics_error("fc3d_ProjectedGradientOnCylinder", "dparam[SICONOS_CONVEXQP_PGOC_RHO] must be nonzero");
+    numerics_error("ConvexQP_ProjectedGradient", "dparam[SICONOS_CONVEXQP_PGOC_RHO] must be nonzero");
 
   double rho_k =rho;
   double * z_tmp= (double *)malloc(n * sizeof(double));
@@ -186,8 +194,14 @@ void convexQP_ProjectedGradient(ConvexQP* problem, double *z, double *w, int* in
         //  Compute the new value of the cost function (we use velocity as tmp)
         /* q --> w */
         cblas_dcopy(n , q , 1 , w, 1);
+
+        cblas_daxpy(n, 1.0, q, 1, w, 1);
+        NM_gemv(1.0, M, z, 1.0, w);
+
         /* M r + 2*q --> w */
-        NM_gemv(1.0, M, z, 2.0, w);
+        //NM_gemv(1.0, M, z, 2.0, w);
+
+
         /* theta = 0.5 R^T M r + r^T q */
         theta = 0.5*  cblas_ddot(n, w, 1, z, 1);
 

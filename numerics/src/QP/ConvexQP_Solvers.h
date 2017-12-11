@@ -36,7 +36,6 @@ For each solver, the input argument are:
 #include "ConvexQP.h"
 #include "SolverOptions.h"
 #include "ConvexQP_cst.h"
-#include "SiconosCompat.h"
 
 #if defined(__cplusplus) && !defined(BUILD_AS_CPP)
 extern "C"
@@ -73,6 +72,15 @@ extern "C"
   */
   int convexQP_ProjectedGradient_setDefaultSolverOptions(SolverOptions* options);
 
+  void convexQP_ADMM(ConvexQP* problem, double *x, double *u, double * xsi, int* info, SolverOptions* options);
+
+  /** set the default solver parameters and perform memory allocation for PG
+    \param options the pointer to the array of options to set
+  */
+  int convexQP_ADMM_setDefaultSolverOptions(SolverOptions* options);
+
+
+  
   
   void convexQP_VI_solver(ConvexQP* problem, double *z, double *w, int* info, SolverOptions* options);
   

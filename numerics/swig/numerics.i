@@ -104,10 +104,10 @@ static char* format_msg_concat(const char* msg1, const char* msg2)
 %enddef
 
 %{
-#include "SiconosNumerics.h"
 #include "SiconosConfig.h"
+#include "SiconosNumerics.h"
 #include "SolverOptions.h"
-#include "SparseMatrix.h"
+#include "SparseMatrix_internal.h"
 #include "NumericsMatrix.h"
 #include "SparseBlockMatrix.h"
 #include "NumericsSparseMatrix.h"
@@ -299,6 +299,7 @@ namespace std11 = boost;
 #include "NCP_Solvers.h"
 #include "MLCP_Solvers.h"
 #include "ConvexQP_Solvers.h"
+#include "SiconosCompat.h"
 #include "SOCLCP_Solvers.h"
 #include "NonSmoothDrivers.h"
   %}
