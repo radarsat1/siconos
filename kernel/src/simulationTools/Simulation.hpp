@@ -45,12 +45,19 @@
  *
  */
 
+namespace boost{
+namespace serialization {
+    template <typename Ar> void serialize(Ar&,Simulation&,const unsigned);
+}
+}
+
 class Simulation : public std11::enable_shared_from_this<Simulation>
 {
 protected:
   /** serialization hooks
   */
   ACCEPT_SERIALIZATION(Simulation);
+  template <typename Ar> friend void boost::serialization::serialize(Ar&,Simulation&,const unsigned);
 
   /** name or id of the Simulation */
   std::string _name;

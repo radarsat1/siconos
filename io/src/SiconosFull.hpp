@@ -377,13 +377,57 @@ namespace boost { namespace serialization {
 } // namespace boost
 
 
+template <class Archive>
+void siconos_io(Archive & ar, Simulation & s, unsigned int version)
+{
+  std::cout << "here" << std::endl;
+  ar & boost::serialization::make_nvp("_OSIDSmap",s._OSIDSmap);
+  ar & boost::serialization::make_nvp("_T",s._T);
+  ar & boost::serialization::make_nvp("_allNSProblems",s._allNSProblems);
+  ar & boost::serialization::make_nvp("_allOSI",s._allOSI);
+  ar & boost::serialization::make_nvp("_eventsManager",s._eventsManager);
+  ar & boost::serialization::make_nvp("_interman",s._interman);
+  ar & boost::serialization::make_nvp("_isInitialized",s._isInitialized);
+  ar & boost::serialization::make_nvp("_name",s._name);
+  ar & boost::serialization::make_nvp("_nsds",s._nsds);
+  ar & boost::serialization::make_nvp("_numberOfIndexSets",s._numberOfIndexSets);
+  ar & boost::serialization::make_nvp("_printStat",s._printStat);
+  ar & boost::serialization::make_nvp("_relativeConvergenceCriterionHeld",s._relativeConvergenceCriterionHeld);
+  ar & boost::serialization::make_nvp("_relativeConvergenceTol",s._relativeConvergenceTol);
+  ar & boost::serialization::make_nvp("_staticLevels",s._staticLevels);
+  ar & boost::serialization::make_nvp("_tend",s._tend);
+  ar & boost::serialization::make_nvp("_tinit",s._tinit);
+  ar & boost::serialization::make_nvp("_tolerance",s._tolerance);
+  ar & boost::serialization::make_nvp("_tout",s._tout);
+  ar & boost::serialization::make_nvp("_useRelativeConvergenceCriterion",s._useRelativeConvergenceCriterion);
+  ar & boost::serialization::make_nvp("statOut",s.statOut);
+  DEBUG_PRINTF("serialize %s\n", "Simulation");
 
+  // TODO: define a class pairing the list and ref to iterator and containing load/save
+  // make a temporary one
+  // call split_member on it here
+  WAS HERE
+};
+REGISTER_BOOST_SERIALIZATION(Simulation);
+
+// namespace boost { namespace serialization {
+//     template<class Archive>
+//     void serialize(Archive & ar, NonSmoothDynamicalSystem::ChangeLogIter & o, const unsigned int version)
+//     {
+//       std::cout << "here" << std::endl;
+//       exit(1);
+//       DEBUG_PRINTF("serialize %s\n", "NonSmoothDynamicalSystem::ChangeLogIter");
+//       //siconos_io(ar,o,version);
+//       };
+//   }}
 
 template <class Archive>
 void siconos_io_register_Kernel(Archive& ar)
 {
   ar.register_type(static_cast<SimpleMatrix*>(NULL));
   ar.register_type(static_cast<SiconosVector*>(NULL));
+  // ar.register_type(static_cast<Simulation*>(NULL));
+  // ar.register_type(static_cast<NonSmoothDynamicalSystem::ChangeLogIter*>(NULL));
 
   siconos_io_register_generated_Kernel(ar);
 
