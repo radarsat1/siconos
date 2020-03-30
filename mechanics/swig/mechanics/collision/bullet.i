@@ -277,6 +277,6 @@ PY_FULL_REGISTER(Bullet1DR, Mechanics);
 
 %include base.i
 
-PY_REGISTER_WITHOUT_HEADER(SiconosBulletOptions, Mechanics);
-PY_REGISTER_WITHOUT_HEADER(SiconosBulletStatistics, Mechanics);
-PY_FULL_REGISTER(SiconosBulletCollisionManager, Mechanics);
+PY_REGISTER_WITHOUT_HEADER_NOTPICKLABLE(SiconosBulletOptions, Mechanics);
+PY_REGISTER_WITHOUT_HEADER_NOTPICKLABLE(SiconosBulletStatistics, Mechanics);
+PY_FULL_REGISTER_NOTPICKLABLE(SiconosBulletCollisionManager, Mechanics);

@@ -27,9 +27,8 @@ input_headers = {
                   "CircleCircleR.hpp", "CircularDS.hpp",
                   "SiconosJoints.hpp",
                   "SiconosCollision.hpp",
-                  "SiconosBulletCollisionManager.hpp",
-                  "Bullet1DR.hpp",
                   "BulletR.hpp",
+                  "Bullet1DR.hpp",
     ],
 
     # fix missing forwards for Control

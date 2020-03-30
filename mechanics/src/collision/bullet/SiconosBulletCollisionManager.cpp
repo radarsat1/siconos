@@ -2331,8 +2331,8 @@ void SiconosBulletCollisionManager::updateInteractions(SP::Simulation simulation
           rel->contactor[1] = pairB->contactor;
           rel->ds[0] = rbdsA;
           rel->ds[1] = rbdsB;
-          rel->btObject[0] = pairA->btobject;
-          rel->btObject[1] = pairB->btobject;
+          // rel->btObject[0] = pairA->btobject;
+          // rel->btObject[1] = pairB->btobject;
 
           // TODO cast down btshape from BodyShapeRecord-derived classes
           // rel->btShape[0] = pairA->btshape;
@@ -2505,7 +2505,7 @@ void SiconosBulletCollisionManager::updateInteractions(SP::Simulation simulation
         {
           SP::Bullet1DR rel(
             std::make_shared<Bullet1DR>(
-              createSPtrbtManifoldPoint(*it->point)));
+								 /*createSPtrbtManifoldPoint(*it->point)*/));
           inter = std::make_shared<Interaction>(nslaw, rel);
         }
       }

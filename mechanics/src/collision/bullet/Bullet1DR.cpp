@@ -22,24 +22,24 @@
 #include <BulletCollision/NarrowPhaseCollision/btManifoldPoint.h>
 #include <BulletCollision/CollisionDispatch/btCollisionObject.h>
 
-Bullet1DR::Bullet1DR(SP::btManifoldPoint point) : NewtonEuler1DR(), _contactPoints(point)
+Bullet1DR::Bullet1DR(/*SP::btManifoldPoint point*/) : NewtonEuler1DR()//, _contactPoints(point)
 {
 }
 
 void Bullet1DR::computeh(double time, BlockVector& q0, SiconosVector& y)
 {
-  y.setValue(0, _contactPoints->getDistance());
-  btVector3 posa = _contactPoints->getPositionWorldOnA();
-  btVector3 posb = _contactPoints->getPositionWorldOnB();
-  (*pc1())(0) = posa[0];
-  (*pc1())(1) = posa[1];
-  (*pc1())(2) = posa[2];
-  (*pc2())(0) = posb[0];
-  (*pc2())(1) = posb[1];
-  (*pc2())(2) = posb[2];
+  // y.setValue(0, _contactPoints->getDistance());
+  // btVector3 posa = _contactPoints->getPositionWorldOnA();
+  // btVector3 posb = _contactPoints->getPositionWorldOnB();
+  // (*pc1())(0) = posa[0];
+  // (*pc1())(1) = posa[1];
+  // (*pc1())(2) = posa[2];
+  // (*pc2())(0) = posb[0];
+  // (*pc2())(1) = posb[1];
+  // (*pc2())(2) = posb[2];
 
-  (*nc())(0) = _contactPoints->m_normalWorldOnB[0];
-  (*nc())(1) = _contactPoints->m_normalWorldOnB[1];
-  (*nc())(2) = _contactPoints->m_normalWorldOnB[2];;
+  // (*nc())(0) = _contactPoints->m_normalWorldOnB[0];
+  // (*nc())(1) = _contactPoints->m_normalWorldOnB[1];
+  // (*nc())(2) = _contactPoints->m_normalWorldOnB[2];;
 
 }

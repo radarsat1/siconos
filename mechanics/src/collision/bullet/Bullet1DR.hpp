@@ -29,14 +29,14 @@ private:
   */
   ACCEPT_SERIALIZATION(Bullet1DR);
 
-  SP::btManifoldPoint _contactPoints;
+		 //SP::btManifoldPoint _contactPoints;
 
 public:
-  Bullet1DR(SP::btManifoldPoint);
+		 Bullet1DR(/*SP::btManifoldPoint*/);
 
   SP::btManifoldPoint contactPoint() const
   {
-    return _contactPoints;
+			 return nullptr;//_contactPoints;
   };
 
   virtual void computeh(double time, BlockVector&, SiconosVector&);
