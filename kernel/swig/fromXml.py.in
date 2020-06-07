@@ -430,7 +430,7 @@ def buildModelXML(xmlFile):
     for osnspType in dataOSNSP.keys():
         if simxml.OneStepNSProblems_List.__dict__[osnspType] is not None:
             for osnspxml in simxml.OneStepNSProblems_List.__dict__[osnspType]:
-                if osnspType is 'FrictionContact':
+                if osnspType == 'FrictionContact':
                     typeFC = int(osnspxml.Type)
                     osnsp = SK.FrictionContact(typeFC)
                 else:
