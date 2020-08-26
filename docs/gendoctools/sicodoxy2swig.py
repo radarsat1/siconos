@@ -31,7 +31,7 @@ from itertools import count
 import pickle
 import textwrap
 from pathlib import Path
-from breathe import node_factory as nf
+from docutils import nodes
 
 
 from gendoctools.doxy2swig import Doxy2SWIG
@@ -222,7 +222,6 @@ class SiconosDoxy2Swig(Doxy2SWIG):
 
         content = node.firstChild.data.strip()
         __id = next(self.__ids)
-        node_factory = nf.create_node_factory()
         rst_node = None
         latex = content
         # Either inline
@@ -230,10 +229,10 @@ class SiconosDoxy2Swig(Doxy2SWIG):
             latex = latex[1:-1]
             latex = r':math:`' + latex.strip() + r'`'
             # If we're inline create a math node like the :math: role
-            rst_node = node_factory.math()
+            rst_node = nodes.math()
         else:
             # Else we're multiline
-            rst_node = node_factory.displaymath()
+            rst_node = nodes.displaymath()
 
         # Or multiline
         if latex.startswith("\[") and latex.endswith("\]"):
@@ -295,8 +294,7 @@ class SiconosDoxy2Swig(Doxy2SWIG):
             # Remove starting whitespace
             text = textwrap.dedent(text)
             __id = next(self.__ids)
-            node_factory = nf.create_node_factory()
-            rst_node = node_factory.displaymath()
+            rst_node = nodes.displaymath()
             rst_node["latex"] = text
             rst_node["label"] = None
             rst_node["nowrap"] = False
