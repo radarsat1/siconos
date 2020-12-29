@@ -214,63 +214,33 @@ static inline bool is_Pyobject_scipy_sparse_matrix(PyObject* o, PyObject* scipy_
 
 %define %SAFE_CAST_INT(pyvar, len, dest_array, array_pyvar, indvar, alloc)
 {
-    int array_pyvartype_ = PyArray_TYPE((PyArrayObject *)pyvar);
-    switch (array_pyvartype_)
-    {
-      case NPY_INT32:
-      {
-        array_pyvar = obj_to_array_allow_conversion(pyvar, NPY_INT32, indvar);
-        if (!array_pyvar) { PyErr_SetString(PyExc_RuntimeError, "Could not get array for variable" #pyvar); PyObject_Print(pyvar, stderr, 0); return 0; }
-
+    /* Retrieve a pointer to the array, ensuring a contiguous array of the Siconos-native
+     * int type; use a direct pointer if possible, but if it was newly allocated for this
+     * purpose, steal the memory from numpy by clearing OWNDATA. */
+    PyArrayObject *ar_contiguous = NULL;
 %#ifdef _SICONOS_INT64
-        PyErr_Warn(PyExc_UserWarning, "Performance warning: the vector of indices or pointers is in int32, but siconos has 64-bits integers: we have to perform a conversion. Consider given sparse matrix in the right format");
-        dest_array = (CS_INT*) malloc(len * sizeof(CS_INT));
-        if(!dest_array) { PyErr_SetString(PyExc_RuntimeError, "Allocation of i or p failed (triggered by conversion to int32)"); return 0; }
-        
-        for(unsigned i = 0; i < len; ++i)
-        {
-          dest_array[i] = ((int32_t *) array_data(array_pyvar)) [i];
-        }
-        if (*indvar) Py_DECREF(array_pyvar);
-        *indvar = 0;
-        alloc = true;
+    if (PyArray_ITEMSIZE((PyArrayObject *)pyvar)==8)
 %#else
-        dest_array = (CS_INT *) array_data(array_pyvar);
+    if (PyArray_ITEMSIZE((PyArrayObject *)pyvar)==4)
 %#endif
-        break;
-      }
-      case NPY_INT64:
-      {
-        array_pyvar = obj_to_array_allow_conversion(pyvar, NPY_INT64, indvar);
-        if (!array_pyvar) { PyErr_SetString(PyExc_RuntimeError, "Could not get array for variable " #pyvar);  PyObject_Print(pyvar, stderr, 0); return 0; }
-
+        ar_contiguous = PyArray_GETCONTIGUOUS(pyvar);
+    else
 %#ifdef _SICONOS_INT64
-        dest_array = (CS_INT*) array_data(array_pyvar);
+        ar_contiguous = PyArray_FROM_OTF(pyvar, NPY_INT32, NPY_ARRAY_C_CONTIGUOUS);
 %#else
-        PyErr_Warn(PyExc_UserWarning, "Performance warning: the vector of indices or pointers is in int64, but siconos has 32-bits integers: we have to perform a conversion. Consider given sparse matrix in the right format");
-        dest_array = (CS_INT*) malloc(len * sizeof(CS_INT));
-        if(!dest_array) { PyErr_SetString(PyExc_RuntimeError, "Allocation of i or p failed (triggered by conversion to int64)"); return 0; }
-        for(unsigned i = 0; i < len; ++i)
-        {
-          dest_array[i] = ((int64_t *) array_data(array_pyvar)) [i];
-        }
-        if (*indvar) Py_DECREF(array_pyvar);
-        *indvar = 0;
-        alloc = true;
+        ar_contiguous = PyArray_FROM_OTF(pyvar, NPY_INT64, NPY_ARRAY_C_CONTIGUOUS);
 %#endif
-        break;
-      }
-      default:
-      {
-        PyObject *errmsg;
-        errmsg = PyUString_FromString("Unknown type ");
-        PyUString_ConcatAndDel(&errmsg, PyObject_Repr((PyObject *)PyArray_DESCR((PyArrayObject *)pyvar)));
-        PyUString_ConcatAndDel(&errmsg, PyUString_FromFormat(" for variable " #pyvar));
-        PyErr_SetObject(PyExc_TypeError, errmsg);
-        Py_DECREF(errmsg);
-        return 0;
-      }
-    }
+
+     if (ar_contiguous != pyvar) {
+        PyErr_Warn(PyExc_UserWarning, "Performance warning: the vector of indices or pointers was in a format that required conversion.");
+     }
+
+     dest_array = (CS_INT*) PyArray_DATA(ar_contiguous);
+     if (ar_contiguous != pyvar && PyArray_CHKFLAGS(ar_contiguous, NPY_ARRAY_OWNDATA)) {
+         alloc = 1;
+         PyArray_CLEARFLAGS(ar_contiguous, NPY_ARRAY_OWNDATA);
+     }
+     Py_DECREF(ar_contiguous);
 }
 %enddef
 
